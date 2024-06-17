@@ -5,7 +5,7 @@ const db = new sqlite3.Database('database.db'); // Use o mesmo nome do banco de 
 
 module.exports = {
   name: "verhoras",
-  description: "[⚙️ Utilidade] Veja tem que está em patrulha e o tem que você patrulhou.",
+  description: "[⚙️ Utilidade] Veja tem que está em patrulha e o tem que você bateu-ponto.",
   type: Discord.ApplicationCommandType.ChatInput,
 
   run: async (client, interaction) => {
@@ -19,7 +19,7 @@ module.exports = {
       }
 
       if (!row) {
-        return interaction.reply({ content: '<:icons_Wrong75:1198037616956821515> | Você ainda não patrulhou após o último reset..', ephemeral: true });
+        return interaction.reply({ content: '<:icons_Wrong75:1198037616956821515> | Você ainda não bateu ponto após o último reset..', ephemeral: true });
       }
 
       const intervalosArray = JSON.parse(row.intervalos); // Converte a string JSON do banco de dados em um array
@@ -29,9 +29,9 @@ module.exports = {
       const tempoAbertoAtualFormatado = FunctionsGlobal.formatarTempo(tempoAbertoAtual);
       const tempoTotalFormatado = FunctionsGlobal.formatarTempo(tempoTotal + tempoAbertoAtual);
       if (tempoAbertoAtual == 0) {
-        interaction.reply({ content: `<:iconscorrect:1198037618361905345> | Você patrulhou por: ${tempoTotalFormatado}.`, ephemeral: true });
+        interaction.reply({ content: `<:iconscorrect:1198037618361905345> | Você tem registrado em ponto: **${tempoTotalFormatado}**.`, ephemeral: true });
       } else {
-        interaction.reply({ content: `<:iconscorrect:1198037618361905345> | Você está com ponto aberto há: ${tempoAbertoAtualFormatado}`, ephemeral: true });
+        interaction.reply({ content: `<:refresh:1197986033594269778> | Você está com ponto aberto há: ${tempoAbertoAtualFormatado}`, ephemeral: true });
       }
     });
   },
