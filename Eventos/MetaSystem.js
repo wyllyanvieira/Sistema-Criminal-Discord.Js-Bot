@@ -1,12 +1,12 @@
 const sqlite3 = require("sqlite3");
 const Discord = require("discord.js");
-const { Modal, TextInputComponent, showModal } = require('discord-modals');
+const { Modal, TextInputComponent, showModal } = require("discord-modals");
 const client = require("../index");
 const db = new sqlite3.Database("./database.db");
-const config = require("../config.json"); 
+const config = require("../config.json");
 const FunctionsGlobal = require("../FunctionsGlobal.js");
 
-require('discord-modals')(client);
+require("discord-modals")(client);
 
 // Configurar o banco de dados
 db.serialize(() => {
@@ -21,34 +21,44 @@ db.serialize(() => {
 // Função para inicializar as metas no banco de dados
 function initializeMetas(usuario_id, callback) {
   const metas = JSON.stringify(config.METAS_FARM.metaglobal);
-  db.run(`INSERT OR REPLACE INTO usuarios (usuario_id, metas) VALUES (?, ?)`, [usuario_id, metas], callback);
+  db.run(
+    `INSERT OR REPLACE INTO usuarios (usuario_id, metas) VALUES (?, ?)`,
+    [usuario_id, metas],
+    callback
+  );
 }
 
 // Função para enviar as metas e atualizar o banco de dados
 function updateMetas(usuario_id, items, callback) {
-  db.get(`SELECT metas FROM usuarios WHERE usuario_id = ?`, [usuario_id], (err, row) => {
-    if (err) return callback(err);
+  db.get(
+    `SELECT metas FROM usuarios WHERE usuario_id = ?`,
+    [usuario_id],
+    (err, row) => {
+      if (err) return callback(err);
 
-    if (!row || !row.metas) {
-      initializeMetas(usuario_id, (err) => {
-        if (err) return callback(err);
+      if (!row || !row.metas) {
+        initializeMetas(usuario_id, (err) => {
+          if (err) return callback(err);
+          updateMetas(usuario_id, items, callback);
+        });
+      } else {
+        let metas = JSON.parse(row.metas);
 
-        // Após inicializar as metas, tentar atualizar novamente
-        updateMetas(usuario_id, items, callback);
-      });
-    } else {
-      let metas = JSON.parse(row.metas);
+        items.forEach(({ item, quantidade }) => {
+          let meta = metas.find((meta) => meta.item === item);
+          if (meta) {
+            meta.quantidade = Math.max(meta.quantidade - quantidade, 0);
+          }
+        });
 
-      items.forEach(({ item, quantidade }) => {
-        let meta = metas.find(meta => meta.item === item);
-        if (meta) {
-          meta.quantidade = Math.max(meta.quantidade - quantidade, 0);
-        }
-      });
-
-      db.run(`UPDATE usuarios SET metas = ? WHERE usuario_id = ?`, [JSON.stringify(metas), usuario_id], callback);
+        db.run(
+          `UPDATE usuarios SET metas = ? WHERE usuario_id = ?`,
+          [JSON.stringify(metas), usuario_id],
+          callback
+        );
+      }
     }
-  });
+  );
 }
 
 client.on("interactionCreate", async (interaction) => {
@@ -57,86 +67,270 @@ client.on("interactionCreate", async (interaction) => {
     if (interaction.customId === "send_meta") {
       // Exibir modal para o usuário enviar as metas
       const modal = new Modal()
-        .setCustomId('send_meta_modal')
-        .setTitle('Enviar Metas')
+        .setCustomId("send_meta_modal")
+        .setTitle("Enviar Metas")
         .addComponents(
           new TextInputComponent()
-            .setCustomId('meta_items')
+            .setCustomId("meta_items")
             .setLabel('Itens e Quantidades (ex: "3 pistola, 2 m4")')
-            .setStyle('LONG'),
+            .setStyle("LONG"),
           new TextInputComponent()
-            .setCustomId('meta_proof')
-            .setLabel('Link de Comprovação')
-            .setStyle('SHORT')
+            .setCustomId("meta_proof")
+            .setLabel("Link de Comprovação")
+            .setStyle("SHORT")
         );
 
       showModal(modal, {
         client: client,
-        interaction: interaction
+        interaction: interaction,
       });
     }
 
     if (interaction.customId === "check_metas") {
-      db.get(`SELECT metas FROM usuarios WHERE usuario_id = ?`, [usuario_id], (err, row) => {
-        if (err) {
-          return interaction.reply({ content: 'Erro ao verificar metas.', ephemeral: true });
+      db.get(
+        `SELECT metas FROM usuarios WHERE usuario_id = ?`,
+        [usuario_id],
+        (err, row) => {
+          if (err) {
+            return interaction.reply({
+              content: "Erro ao verificar metas.",
+              ephemeral: true,
+            });
+          }
+
+          if (!row || !row.metas) {
+            initializeMetas(usuario_id, (err) => {
+              if (err) {
+                return interaction.reply({
+                  content: "Erro ao inicializar metas.",
+                  ephemeral: true,
+                });
+              }
+
+              return interaction.reply({
+                content: "Metas inicializadas!",
+                ephemeral: true,
+              });
+            });
+          } else {
+            const metas = JSON.parse(row.metas);
+            let response = "Suas metas:\n";
+            metas.forEach((meta) => {
+              response += `Item: ${meta.item}, Quantidade restante: ${meta.quantidade}\n`;
+            });
+
+            return interaction.reply({ content: response, ephemeral: true });
+          }
+        }
+      );
+    }
+
+    if (
+      interaction.customId === "add_farm" ||
+      interaction.customId === "remove_farm" ||
+      interaction.customId === "reset_farm"
+    ) {
+      // Abre o modal correspondente para o administrador
+      let modal;
+      if (interaction.customId === "add_farm") {
+        modal = new Modal()
+          .setCustomId("add_farm_modal")
+          .setTitle("Adicionar Farm")
+          .addComponents(
+            new TextInputComponent()
+              .setCustomId("user_id")
+              .setLabel("ID do Usuário")
+              .setStyle("SHORT"),
+            new TextInputComponent()
+              .setCustomId("farm_item")
+              .setLabel("Item")
+              .setStyle("SHORT"),
+            new TextInputComponent()
+              .setCustomId("farm_quantidade")
+              .setLabel("Quantidade")
+              .setStyle("SHORT")
+          );
+      } else if (interaction.customId === "remove_farm") {
+        modal = new Modal()
+          .setCustomId("remove_farm_modal")
+          .setTitle("Remover Farm")
+          .addComponents(
+            new TextInputComponent()
+              .setCustomId("user_id")
+              .setLabel("ID do Usuário")
+              .setStyle("SHORT"),
+            new TextInputComponent()
+              .setCustomId("farm_item")
+              .setLabel("Item")
+              .setStyle("SHORT"),
+            new TextInputComponent()
+              .setCustomId("farm_quantidade")
+              .setLabel("Quantidade")
+              .setStyle("SHORT")
+          );
+      } else if (interaction.customId === "reset_farm") {
+        modal = new Modal()
+          .setCustomId("reset_farm_modal")
+          .setTitle("Resetar Farms")
+          .addComponents(
+            new TextInputComponent()
+              .setCustomId("user_id")
+              .setLabel("ID do Usuário")
+              .setStyle("SHORT")
+          );
+      }
+
+      showModal(modal, {
+        client: client,
+        interaction: interaction,
+      });
+    }
+  }
+    if (interaction.isModalSubmit()) {
+      if (interaction.customId === "send_meta_modal") {
+        const itemsInput = interaction.fields.getTextInputValue("meta_items");
+        const proofLink = interaction.fields.getTextInputValue("meta_proof");
+
+        if (!itemsInput || !proofLink) {
+          return interaction.reply({
+            content: "Valores inválidos.",
+            ephemeral: true,
+          });
         }
 
-        if (!row || !row.metas) {
-          initializeMetas(usuario_id, (err) => {
+        const items = itemsInput
+          .split(",")
+          .map((item) => {
+            const [quantidade, ...itemName] = item.trim().split(" ");
+            return {
+              item: itemName.join(" ").trim(),
+              quantidade: parseInt(quantidade, 10),
+            };
+          })
+          .filter((item) => item.quantidade && item.item);
+
+        if (items.length === 0) {
+          return interaction.reply({
+            content: "Formato dos itens inválido.",
+            ephemeral: true,
+          });
+        }
+
+        // Gerar string descritiva dos itens farmados
+        const itemsDescription = items
+          .map(({ item, quantidade }) => `${quantidade} ${item}`)
+          .join(", ");
+
+        // Log do link de comprovação para auditoria
+        FunctionsGlobal.log(
+          "metas",
+          `Usuário ${interaction.user.tag} realizou a meta de: ${itemsDescription} **Link de Comprovação:** ${proofLink}`
+        );
+
+        updateMetas(usuario_id, items, (err) => {
+          if (err) {
+            return interaction.reply({
+              content: "Erro ao enviar meta.",
+              ephemeral: true,
+            });
+          }
+
+          return interaction.reply({
+            content: "Meta enviada com sucesso!",
+            ephemeral: true,
+          });
+        });
+      }
+
+      const targetUserId = interaction.fields.getTextInputValue("user_id");
+
+      if (!targetUserId) {
+        return interaction.reply({
+          content: "ID do usuário inválido.",
+          ephemeral: true,
+        });
+      }
+
+      if (interaction.customId === "add_farm_modal") {
+        const item = interaction.fields.getTextInputValue("farm_item");
+        const quantidade = parseInt(
+          interaction.fields.getTextInputValue("farm_quantidade"),
+          10
+        );
+
+        if (!item || isNaN(quantidade)) {
+          return interaction.reply({
+            content: "Valores inválidos.",
+            ephemeral: true,
+          });
+        }
+
+        // Atualiza o banco de dados para adicionar a farm
+        updateMetas(
+          targetUserId,
+          [{ item, quantidade: -quantidade }],
+          (err) => {
             if (err) {
-              return interaction.reply({ content: 'Erro ao inicializar metas.', ephemeral: true });
+              return interaction.reply({
+                content: "Erro ao adicionar farm.",
+                ephemeral: true,
+              });
             }
 
-            return interaction.reply({ content: 'Metas inicializadas!', ephemeral: true });
-          });
-        } else {
-          const metas = JSON.parse(row.metas);
-          let response = 'Suas metas:\n';
-          metas.forEach(meta => {
-            response += `Item: ${meta.item}, Quantidade restante: ${meta.quantidade}\n`;
-          });
-
-          return interaction.reply({ content: response, ephemeral: true });
-        }
-      });
-    }
-  }
-
-  if (interaction.isModalSubmit()) {
-    if (interaction.customId === 'send_meta_modal') {
-      const itemsInput = interaction.fields.getTextInputValue('meta_items');
-      const proofLink = interaction.fields.getTextInputValue('meta_proof');
-
-      if (!itemsInput || !proofLink) {
-        return interaction.reply({ content: 'Valores inválidos.', ephemeral: true });
+            return interaction.reply({
+              content: "Farm adicionada com sucesso!",
+              ephemeral: true,
+            });
+          }
+        );
       }
 
-      const items = itemsInput.split(',').map(item => {
-        const [quantidade, ...itemName] = item.trim().split(' ');
-        return {
-          item: itemName.join(' ').trim(),
-          quantidade: parseInt(quantidade, 10)
-        };
-      }).filter(item => item.quantidade && item.item);
+      if (interaction.customId === "remove_farm_modal") {
+        const item = interaction.fields.getTextInputValue("farm_item");
+        const quantidade = parseInt(
+          interaction.fields.getTextInputValue("farm_quantidade"),
+          10
+        );
 
-      if (items.length === 0) {
-        return interaction.reply({ content: 'Formato dos itens inválido.', ephemeral: true });
-      }
-
-      // Gerar string descritiva dos itens farmados
-      const itemsDescription = items.map(({ item, quantidade }) => `${quantidade} ${item}`).join(', ');
-
-      // Log do link de comprovação para auditoria
-      FunctionsGlobal.log("metas", `Usuário ${interaction.user.tag} realizou a meta de: ${itemsDescription} **Link de Comprovação:** ${proofLink}`);
-
-      updateMetas(usuario_id, items, (err) => {
-        if (err) {
-          return interaction.reply({ content: 'Erro ao enviar meta.', ephemeral: true });
+        if (!item || isNaN(quantidade)) {
+          return interaction.reply({
+            content: "Valores inválidos.",
+            ephemeral: true,
+          });
         }
 
-        return interaction.reply({ content: 'Meta enviada com sucesso!', ephemeral: true });
-      });
+        // Atualiza o banco de dados para remover a farm
+        updateMetas(targetUserId, [{ item, quantidade }], (err) => {
+          if (err) {
+            return interaction.reply({
+              content: "Erro ao remover farm.",
+              ephemeral: true,
+            });
+          }
+
+          return interaction.reply({
+            content: "Farm removida com sucesso!",
+            ephemeral: true,
+          });
+        });
+      }
+
+      if (interaction.customId === "reset_farm_modal") {
+        // Inicializa as metas para resetar
+        initializeMetas(targetUserId, (err) => {
+          if (err) {
+            return interaction.reply({
+              content: "Erro ao resetar farms.",
+              ephemeral: true,
+            });
+          }
+
+          return interaction.reply({
+            content: "Farms resetadas com sucesso!",
+            ephemeral: true,
+          });
+        });
+      }
     }
-  }
+  
 });
