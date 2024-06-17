@@ -186,62 +186,61 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
   }
-    if (interaction.isModalSubmit()) {
-      if (interaction.customId === "send_meta_modal") {
-        const itemsInput = interaction.fields.getTextInputValue("meta_items");
-        const proofLink = interaction.fields.getTextInputValue("meta_proof");
+  if (interaction.isModalSubmit()) {
+    if (interaction.customId === "send_meta_modal") {
+      const itemsInput = interaction.fields.getTextInputValue("meta_items");
+      const proofLink = interaction.fields.getTextInputValue("meta_proof");
 
-        if (!itemsInput || !proofLink) {
-          return interaction.reply({
-            content: "Valores inválidos.",
-            ephemeral: true,
-          });
-        }
-
-        const items = itemsInput
-          .split(",")
-          .map((item) => {
-            const [quantidade, ...itemName] = item.trim().split(" ");
-            return {
-              item: itemName.join(" ").trim(),
-              quantidade: parseInt(quantidade, 10),
-            };
-          })
-          .filter((item) => item.quantidade && item.item);
-
-        if (items.length === 0) {
-          return interaction.reply({
-            content: "Formato dos itens inválido.",
-            ephemeral: true,
-          });
-        }
-
-        // Gerar string descritiva dos itens farmados
-        const itemsDescription = items
-          .map(({ item, quantidade }) => `${quantidade} ${item}`)
-          .join(", ");
-
-        // Log do link de comprovação para auditoria
-        FunctionsGlobal.log(
-          "metas",
-          `Usuário ${interaction.user.tag} realizou a meta de: ${itemsDescription} **Link de Comprovação:** ${proofLink}`
-        );
-
-        updateMetas(usuario_id, items, (err) => {
-          if (err) {
-            return interaction.reply({
-              content: "Erro ao enviar meta.",
-              ephemeral: true,
-            });
-          }
-
-          return interaction.reply({
-            content: "Meta enviada com sucesso!",
-            ephemeral: true,
-          });
+      if (!itemsInput || !proofLink) {
+        return interaction.reply({
+          content: "Valores inválidos.",
+          ephemeral: true,
         });
       }
 
+      const items = itemsInput
+        .split(",")
+        .map((item) => {
+          const [quantidade, ...itemName] = item.trim().split(" ");
+          return {
+            item: itemName.join(" ").trim(),
+            quantidade: parseInt(quantidade, 10),
+          };
+        })
+        .filter((item) => item.quantidade && item.item);
+
+      if (items.length === 0) {
+        return interaction.reply({
+          content: "Formato dos itens inválido.",
+          ephemeral: true,
+        });
+      }
+
+      // Gerar string descritiva dos itens farmados
+      const itemsDescription = items
+        .map(({ item, quantidade }) => `${quantidade} ${item}`)
+        .join(", ");
+
+      // Log do link de comprovação para auditoria
+      FunctionsGlobal.log(
+        "metas",
+        `Usuário ${interaction.user.tag} realizou a meta de: ${itemsDescription} **Link de Comprovação:** ${proofLink}`
+      );
+
+      updateMetas(usuario_id, items, (err) => {
+        if (err) {
+          return interaction.reply({
+            content: "Erro ao enviar meta.",
+            ephemeral: true,
+          });
+        }
+
+        return interaction.reply({
+          content: "Meta enviada com sucesso!",
+          ephemeral: true,
+        });
+      });
+    } else {
       const targetUserId = interaction.fields.getTextInputValue("user_id");
 
       if (!targetUserId) {
@@ -332,5 +331,5 @@ client.on("interactionCreate", async (interaction) => {
         });
       }
     }
-  
+  }
 });
