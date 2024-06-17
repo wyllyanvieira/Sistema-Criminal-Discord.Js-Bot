@@ -13,8 +13,7 @@ db.serialize(() => {
     usuario_id TEXT PRIMARY KEY,
     aberto INTEGER,
     intervalos TEXT,
-    metas TEXT,
-    provas_farm TEXT
+    metas TEXT
   );`);
 });
 

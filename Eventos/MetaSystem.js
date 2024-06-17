@@ -3,7 +3,7 @@ const Discord = require("discord.js");
 const { Modal, TextInputComponent, showModal } = require('discord-modals');
 const client = require("../index");
 const db = new sqlite3.Database("./database.db");
-const config = require("../config.json"); // Importar o arquivo config.json
+const config = require("../config.json"); 
 const FunctionsGlobal = require("../FunctionsGlobal.js");
 
 require('discord-modals')(client);
@@ -12,6 +12,8 @@ require('discord-modals')(client);
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS usuarios (
     usuario_id TEXT PRIMARY KEY,
+    aberto INTEGER,
+    intervalos TEXT,
     metas TEXT
   );`);
 });
