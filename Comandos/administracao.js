@@ -63,10 +63,6 @@ client.on("interactionCreate", async (interaction) => {
 
       let buttons = new Discord.ActionRowBuilder().addComponents(
         new Discord.ButtonBuilder()
-          .setCustomId("enviar_mensagem_ponto")
-          .setLabel("Enviar Mensagem Bate-ponto")
-          .setStyle(Discord.ButtonStyle.Primary),
-        new Discord.ButtonBuilder()
           .setCustomId("adicionar_tempo")
           .setLabel("Adicionar Tempo")
           .setStyle(Discord.ButtonStyle.Success),
@@ -85,17 +81,17 @@ client.on("interactionCreate", async (interaction) => {
 
       let buttons = new Discord.ActionRowBuilder().addComponents(
         new Discord.ButtonBuilder()
-          .setCustomId("enviar_mensagem_metas")
-          .setLabel("Enviar Mensagem do painel")
+          .setCustomId("add_farm")
+          .setLabel("Adicionar Meta de Farm")
           .setStyle(Discord.ButtonStyle.Primary),
-        new Discord.ButtonBuilder()
-          .setCustomId("setvalue_meta")
-          .setLabel("Setar Meta de farm")
-          .setStyle(Discord.ButtonStyle.Success),
-        new Discord.ButtonBuilder()
-          .setCustomId("adicionar_remover_tempom")
-          .setLabel("Adicionar/Remover Meta")
-          .setStyle(Discord.ButtonStyle.Secondary)
+          new Discord.ButtonBuilder()
+          .setCustomId("remove_farm")
+          .setLabel("Remover Meta de Farm")
+          .setStyle(Discord.ButtonStyle.Secondary),
+          new Discord.ButtonBuilder()
+          .setCustomId("reset_farm")
+          .setLabel("Resetar Meta de Farm")
+          .setStyle(Discord.ButtonStyle.Danger),
       );
 
       interaction.reply({ embeds: [embed], components: [buttons],  ephemeral: true });
@@ -111,22 +107,10 @@ client.on("interactionCreate", async (interaction) => {
             .setPlaceholder("⚙️ | Selecione uma opção")
             .addOptions([
               {
-                label: "Gerar Ranking Geral",
-                value: "gerar_rankings",
-                description: "Gera o ranking geral",
-                emoji: "📊"
-              },
-              {
                 label: "Limpar Rankings",
                 value: "limpar_rankings",
                 description: "Limpa os rankings",
                 emoji: "🧹"
-              },
-              {
-                label: "Enviar Painel de Log Bau",
-                value: "enviar_mensagem_logbau",
-                description: "Envia o painel de Log Bau",
-                emoji: "📮"
               },
               {
                 label: "Visualizar Logs",
