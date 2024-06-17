@@ -51,28 +51,27 @@ O GTARP Roleplay Factions Bot é um bot de Discord desenvolvido em Node.js que o
 
    ```json
     {
-   "token": "",
-   "owner":"496079437511524352",
-    
-    "EMBED": {
-        "color": "2f3136"
-    },
-    
-    "CANAIS": {
-        "canal_ponto":"1250416051251056740",
-        "canal_metas":"1250416068409819146",
-        "canal_bau":"1250416082582245416",
-        "canal_aprovacao_meta":"1251152695130325052"
-    },
-    
-    "METAS_FARM": {
-    "metaglobal": [
-        {"quantidade": 3, "item": "m4"},
-        {"quantidade": 4, "item": "m4-muni"},
-        {"quantidade": 4, "item": "pistola"}
-        ]
-    }
+        "token": "",
+        "owner":"",
 
+            "EMBED": {
+                "color": "2f3136"
+            },
+
+            "CANAIS": {
+                "canal_ponto":"",
+                "canal_metas":"",
+                "canal_bau":"",
+                "canal_aprovacao_meta":""
+            },
+
+            "METAS_FARM": {
+                "metaglobal": [
+                        {"quantidade": 3, "item": "item 1"},
+                        {"quantidade": 2, "item": "item 2"},
+                        {"quantidade": 1, "item": "item 3"}
+                    ]
+            }
     }
 
 
@@ -120,4 +119,4 @@ Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICE
 
 ## Contato
 
-Desenvolvido por [Wyllyan Vieira](https://github.com/seu-wyllyanvieira). Entre em contato pelo e-mail wyllylanvieira@hotmail.com.
+Desenvolvido por [Wyllyan Vieira](https://github.com/seu-wyllyanvieira). Entre em contato pelo e-mail wyllyanvieira@hotmail.com.
