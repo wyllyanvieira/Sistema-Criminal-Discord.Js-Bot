@@ -67,9 +67,13 @@ client.on("interactionCreate", async (interaction) => {
           .setLabel("Enviar Mensagem Bate-ponto")
           .setStyle(Discord.ButtonStyle.Primary),
         new Discord.ButtonBuilder()
-          .setCustomId("adicionar_remover_tempo")
-          .setLabel("Adicionar/Remover Tempo")
-          .setStyle(Discord.ButtonStyle.Secondary)
+          .setCustomId("adicionar_tempo")
+          .setLabel("Adicionar Tempo")
+          .setStyle(Discord.ButtonStyle.Success),
+        new Discord.ButtonBuilder()
+          .setCustomId("remover_tempo")
+          .setLabel("Remover Tempo")
+          .setStyle(Discord.ButtonStyle.Danger)
       );
 
       interaction.reply({ embeds: [embed], components: [buttons],  ephemeral: true});
