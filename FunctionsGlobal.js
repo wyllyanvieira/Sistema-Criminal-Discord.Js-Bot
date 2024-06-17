@@ -32,4 +32,4 @@ function formatarTempo(segundos) {
 
 
 
-module.exports = { log , formatarTempo, getConfig, setConfig};
+module.exports = { log , formatarTempo};
