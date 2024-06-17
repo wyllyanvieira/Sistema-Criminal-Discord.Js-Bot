@@ -38,7 +38,7 @@ O GTARP Roleplay Factions Bot é um bot de Discord desenvolvido em Node.js que o
 1. Clone o repositório:
 
    ```bash
-   git clone https://github.com/wyllyanvieira/Criminal-Organization-Roleplay-BOT.git
+   git clone https://github.com/wyllyanvieira/Sistema-Criminal-Discord.Js-Bot.git
    ```
 
 2. Instale as dependências:
@@ -95,7 +95,7 @@ No arquivo `config.json`, configure as seguintes variáveis:
 
 - `/administracao`: Para abrir menu com diversas opções administrativas.
 
-### Comandos de ponto
+### Comandos de Administração
 
 - `/verhoras`: Comando para ver tempo que seu ponto está batido.
 
