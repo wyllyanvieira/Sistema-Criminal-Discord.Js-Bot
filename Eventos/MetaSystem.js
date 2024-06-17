@@ -193,7 +193,7 @@ client.on("interactionCreate", async (interaction) => {
 
       if (!itemsInput || !proofLink) {
         return interaction.reply({
-          content: "Valores inválidos.",
+          content: "<:icons_Wrong75:1198037616956821515> | Valores inválidos.",
           ephemeral: true,
         });
       }
@@ -211,7 +211,7 @@ client.on("interactionCreate", async (interaction) => {
 
       if (items.length === 0) {
         return interaction.reply({
-          content: "Formato dos itens inválido.",
+          content: "<:icons_Wrong75:1198037616956821515> | Formato dos itens inválido.",
           ephemeral: true,
         });
       }
@@ -230,13 +230,13 @@ client.on("interactionCreate", async (interaction) => {
       updateMetas(usuario_id, items, (err) => {
         if (err) {
           return interaction.reply({
-            content: "Erro ao enviar meta.",
+            content: "<:icons_Wrong75:1198037616956821515> | Erro ao enviar meta.",
             ephemeral: true,
           });
         }
 
         return interaction.reply({
-          content: "Meta enviada com sucesso!",
+          content: "<:newmember:1197986072039264266> | Meta enviada com sucesso!",
           ephemeral: true,
         });
       });
@@ -245,7 +245,7 @@ client.on("interactionCreate", async (interaction) => {
 
       if (!targetUserId) {
         return interaction.reply({
-          content: "ID do usuário inválido.",
+          content: "<:icons_Wrong75:1198037616956821515> | ID do usuário inválido.",
           ephemeral: true,
         });
       }
@@ -259,7 +259,7 @@ client.on("interactionCreate", async (interaction) => {
 
         if (!item || isNaN(quantidade)) {
           return interaction.reply({
-            content: "Valores inválidos.",
+            content: "<:icons_Wrong75:1198037616956821515> | Valores inválidos.",
             ephemeral: true,
           });
         }
@@ -271,13 +271,13 @@ client.on("interactionCreate", async (interaction) => {
           (err) => {
             if (err) {
               return interaction.reply({
-                content: "Erro ao adicionar farm.",
+                content: "<:icons_Wrong75:1198037616956821515> | Erro ao adicionar farm.",
                 ephemeral: true,
               });
             }
 
             return interaction.reply({
-              content: "Farm adicionada com sucesso!",
+              content: "<:ecomode:1197986068545425511> | Farm adicionada com sucesso!",
               ephemeral: true,
             });
           }
@@ -293,7 +293,7 @@ client.on("interactionCreate", async (interaction) => {
 
         if (!item || isNaN(quantidade)) {
           return interaction.reply({
-            content: "Valores inválidos.",
+            content: "<:icons_Wrong75:1198037616956821515> | Valores inválidos.",
             ephemeral: true,
           });
         }
@@ -302,13 +302,13 @@ client.on("interactionCreate", async (interaction) => {
         updateMetas(targetUserId, [{ item, quantidade }], (err) => {
           if (err) {
             return interaction.reply({
-              content: "Erro ao remover farm.",
+              content: "<:icons_Wrong75:1198037616956821515> | Erro ao remover farm.",
               ephemeral: true,
             });
           }
 
           return interaction.reply({
-            content: "Farm removida com sucesso!",
+            content: "<:iconscorrect:1198037618361905345> | Farm removida com sucesso!",
             ephemeral: true,
           });
         });
@@ -319,13 +319,13 @@ client.on("interactionCreate", async (interaction) => {
         initializeMetas(targetUserId, (err) => {
           if (err) {
             return interaction.reply({
-              content: "Erro ao resetar farms.",
+              content: "<:icons_Wrong75:1198037616956821515> | Erro ao resetar farms.",
               ephemeral: true,
             });
           }
 
           return interaction.reply({
-            content: "Farms resetadas com sucesso!",
+            content: "<:iconscorrect:1198037618361905345> | Farms resetadas com sucesso!",
             ephemeral: true,
           });
         });
