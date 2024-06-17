@@ -1,0 +1,30 @@
+{
+  "token": "MTA2NDY4MzU5NTEzNTk5MTg5Mg.GsiMI4.CbYMXv8elWWjdqpy57-BNkWvy3faWzfg4KooiM",
+  "owner":"496079437511524352",
+
+
+  "EMBED": {
+    "color": "2f3136"
+  },
+  
+  "CANAIS": {
+    "canal_ponto":"1250416051251056740",
+    "canal_metas":"1250416068409819146",
+    "canal_bau":"1250416082582245416",
+    "canal_aprovacao_meta":"1251152695130325052"
+  },
+
+  
+  "METAS_FARM": {
+    "metaglobal": [
+      {"quantidade": 3, "item": "m4"},
+      {"quantidade": 4, "item": "m4-muni"},
+      {"quantidade": 4, "item": "pistola"}
+    ]
+  }
+  
+  
+
+}
+
+
