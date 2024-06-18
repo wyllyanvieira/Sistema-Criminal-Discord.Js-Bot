@@ -20,7 +20,7 @@ O GTARP Roleplay Factions Bot é um bot de Discord desenvolvido em Node.js que o
 ## Funcionalidades
 
 - **Gerenciamento de Facções**: Criação, edição e exclusão de facções.
-- **Eventos e Missões**: Organização de eventos e missões para as facções.
+- **Gerenciamento de Baú**: Organização de baú da organização para as facções.
 - **Sistema de Rankings**: Gerenciamento de rankings dentro das facções.
 - **Logs de Atividades**: Registro de atividades importantes das facções.
 - **Mensagens Automáticas**: Envio de mensagens automáticas para comunicação de eventos e atualizações.
@@ -62,7 +62,6 @@ O GTARP Roleplay Factions Bot é um bot de Discord desenvolvido em Node.js que o
                 "canal_ponto":"",
                 "canal_metas":"",
                 "canal_bau":"",
-                "canal_aprovacao_meta":""
             },
 
             "METAS_FARM": {
@@ -87,6 +86,10 @@ No arquivo `config.json`, configure as seguintes variáveis:
 
 - `token`: Token do seu bot no Discord.
 - `owner`: Prefixo para os comandos do bot.
+- `canal_ponto"`: Configura o canal destinado a Bate-Ponto
+- `canal_metas"`: Configura o canal destinado a Metas de Farm
+- `canal_bau"`: Configura o canal destinado a Envio de Baús
+- `metaglobal`: Array que Define Objetos para envio de farm
 
 ## Comandos
 
