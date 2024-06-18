@@ -24,16 +24,15 @@ module.exports = {
   run: async (client, interaction) => {
     if (interaction.options.getSubcommand() === "farm") {
       // Consulta ao banco de dados para obter os usuários e suas metas
-      db.all(`SELECT usuario_id, metas FROM usuarios`, [], (err, rows) => {
+      db.all(`SELECT usuario_id, metas FROM usuarios`, async (err, rows) => {
         if (err) {
           return interaction.reply({
             content: "Erro ao obter ranking.",
             ephemeral: true,
           });
         }
-
+      
         // Processar os dados para calcular a quantidade total de farms restantes para cada usuário
-        console.log(rows);
         const ranking = rows.map((row) => {
           const metas = JSON.parse(row.metas);
           const totalFarm = metas.reduce(
@@ -45,23 +44,41 @@ module.exports = {
             totalFarm,
           };
         });
-
+      
         // Ordenar os usuários pelo total de farms restantes (do menor para o maior)
         ranking.sort((a, b) => a.totalFarm - b.totalFarm);
-
+      
         // Criar a mensagem de resposta com o ranking
         var d = new Date();
         let response = `# Ranking de Farms/Metas: \n- Solicitado por: ${interaction.user} \n- Data: ${d} \n\n`;
-        ranking.forEach((user, index) => {
-          const member = interaction.guild.members.cache.get(user.usuario_id);
-          const username = member ? member.user.tag : `ID: ${user.usuario_id}`;
-          response += `${index + 1}. ${username} - ${
-            user.totalFarm
-          } farms restantes\n`;
-        });
-
+      
+        for (let i = 0; i < ranking.length; i++) {
+          const user = ranking[i];
+      
+          try {
+            const member = await interaction.guild.members.fetch(user.usuario_id);
+      
+            // Verifica se o membro existe antes de adicionar à resposta
+            if (member) {
+              const username = member.displayName;
+      
+              let emoji = "";
+              if (i === 0) emoji = "`🥇` ";
+              else if (i === 1) emoji = "`🥈` ";
+              else if (i === 2) emoji = "`🥉` ";
+              else emoji = "`🎖️` ";
+      
+              response += `${emoji}${username}: ${user.totalFarm} farms restantes\n`;
+            } else {
+              response += `ID: ${user.usuario_id} - ${user.totalFarm} farms restantes\n`;
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      
         // Enviar a resposta
-        interaction.reply({ content: response, ephemeral: false });
+        interaction.channel.send({ content: response });
       });
     } else if (interaction.options.getSubcommand() === "ponto") {
       function calcularRanking(rows) {
