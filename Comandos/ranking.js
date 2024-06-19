@@ -3,6 +3,7 @@ const sqlite3 = require("sqlite3");
 const db = new sqlite3.Database("./database.db");
 const config = require("../config.json");
 const FunctionsGlobal = require("../FunctionsGlobal.js");
+const { createCanvas } = require('canvas');
 
 module.exports = {
   name: "ranking",
@@ -23,7 +24,6 @@ module.exports = {
 
   run: async (client, interaction) => {
     if (interaction.options.getSubcommand() === "farm") {
-      // Consulta ao banco de dados para obter os usuários e suas metas
       db.all(`SELECT usuario_id, metas FROM usuarios`, async (err, rows) => {
         if (err) {
           return interaction.reply({
@@ -31,8 +31,7 @@ module.exports = {
             ephemeral: true,
           });
         }
-      
-        // Processar os dados para calcular a quantidade total de farms restantes para cada usuário
+
         const ranking = rows.map((row) => {
           const metas = JSON.parse(row.metas);
           const totalFarm = metas.reduce(
@@ -44,30 +43,25 @@ module.exports = {
             totalFarm,
           };
         });
-      
-        // Ordenar os usuários pelo total de farms restantes (do menor para o maior)
+
         ranking.sort((a, b) => a.totalFarm - b.totalFarm);
-      
-        // Criar a mensagem de resposta com o ranking
+
         var d = new Date();
         let response = `# Ranking de Farms/Metas: \n- Solicitado por: ${interaction.user} \n- Data: ${d} \n\n`;
-      
+
         for (let i = 0; i < ranking.length; i++) {
           const user = ranking[i];
-      
           try {
             const member = await interaction.guild.members.fetch(user.usuario_id);
-      
-            // Verifica se o membro existe antes de adicionar à resposta
             if (member) {
               const username = member.displayName;
-      
+
               let emoji = "";
               if (i === 0) emoji = "`🥇` ";
               else if (i === 1) emoji = "`🥈` ";
               else if (i === 2) emoji = "`🥉` ";
               else emoji = "`🎖️` ";
-      
+
               response += `${emoji}${username}: ${user.totalFarm} farms restantes\n`;
             } else {
               response += `ID: ${user.usuario_id} - ${user.totalFarm} farms restantes\n`;
@@ -76,16 +70,13 @@ module.exports = {
             console.error(error);
           }
         }
-      
-        // Enviar a resposta
-        interaction.channel.send({ content: response });
+
+        await interaction.reply(response);
       });
     } else if (interaction.options.getSubcommand() === "ponto") {
       function calcularRanking(rows) {
         const ranking = rows.map((row) => {
-          const intervalosArray = row.intervalos
-            ? JSON.parse(row.intervalos)
-            : [];
+          const intervalosArray = row.intervalos ? JSON.parse(row.intervalos) : [];
           const tempoTotal = intervalosArray.reduce(
             (acc, intervalo) => acc + intervalo,
             0
@@ -104,7 +95,6 @@ module.exports = {
         return ranking;
       }
 
-      // Obtém os dados do banco de dados
       db.all("SELECT * FROM usuarios", async (err, rows) => {
         if (err) {
           console.error(err);
@@ -116,13 +106,8 @@ module.exports = {
 
         for (let i = 0; i < ranking.length; i++) {
           const user = ranking[i];
-
           try {
-            const membro = await interaction.guild.members.fetch(
-              user.idUsuario
-            );
-
-            // Verifica se o membro existe antes de adicionar à resposta
+            const membro = await interaction.guild.members.fetch(user.idUsuario);
             if (membro) {
               const nomeUsuario = membro.displayName;
               const tempoFormatado = FunctionsGlobal.formatarTempo(user.tempoTotal);
@@ -139,8 +124,77 @@ module.exports = {
             console.error(error);
           }
         }
-        interaction.channel.send({ content: resposta });
+
+        const rankingData = ranking.map(user => ({ nome: user.idUsuario, valor: user.tempoTotal }));
+        createAndSendChart(interaction, resposta, rankingData);
       });
     }
   },
 };
+
+async function createAndSendChart(interaction, response, rankingData) {
+  rankingData.sort((a, b) => b.valor - a.valor);
+
+  const canvas = createCanvas(1920, 1080);
+  const ctx = canvas.getContext('2d');
+  ctx.font = '32px Arial';  // Adjust font size as per your requirement
+  let total = rankingData.reduce((total, item) => total + item.valor, 0);
+
+  // Ajuste da posição da legenda externa para evitar cortes
+  const legendX = 50;
+  let legendY = 300
+
+  // Convertendo ${rankingData[i].nome} em DisplayNameDiscord
+  for (let i = 0; i < Math.min(5, rankingData.length); i++) {
+    // Aqui você deve ter uma função ou método para converter o nome em DisplayNameDiscord
+    let displayName = await getDisplayNameDiscord(rankingData[i].nome, interaction);
+    
+    ctx.fillStyle = `hsl(${i * (360 / rankingData.length)}, 100%, 50%)`;
+    ctx.fillRect(1450, legendY, 20, 20);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`${displayName} | ${FunctionsGlobal.formatarTempo(rankingData[i].valor)}`, 1480, legendY + 20);
+    
+    legendY += 40; // Incrementa o valor de Y para a próxima linha da legenda
+  }
+
+  let anguloAtual = 0;
+  for (let i = 0; i < rankingData.length; i++) {
+    let angulo = anguloAtual + (Math.PI * 2 * (rankingData[i].valor / total)) / 2;
+    let raio = 400;
+
+    ctx.beginPath();
+    ctx.arc(960, 540, raio, anguloAtual, anguloAtual + (Math.PI * 2 * (rankingData[i].valor / total)), false);
+    ctx.lineTo(960, 540);
+    ctx.fillStyle = `hsl(${i * (360 / rankingData.length)}, 100%, 50%)`;
+    ctx.fill();
+
+    // Convertendo ${rankingData[i].nome} em DisplayNameDiscord para o gráfico
+    let displayName = await getDisplayNameDiscord(rankingData[i].nome, interaction);
+
+    let texto = `${displayName} | ${FunctionsGlobal.formatarTempo(rankingData[i].valor)}`;
+    let x = 960 + raio * 0.8 * Math.cos(angulo);
+    let y = 540 + raio * 0.8 * Math.sin(angulo);
+    ctx.fillStyle = '#000';
+    ctx.fillText(texto, x, y);
+
+    anguloAtual += Math.PI * 2 * (rankingData[i].valor / total);
+  }
+
+  const buffer = canvas.toBuffer('image/png');
+  const attachment = new Discord.AttachmentBuilder(buffer, {name:'grafico.png'});
+
+  await interaction.channel.send({ content: response, files: [attachment] });
+}
+
+// Função para converter ${rankingData[i].nome} em DisplayNameDiscord
+async function getDisplayNameDiscord(userId, interaction) {
+  try {
+    const user = await interaction.guild.members.fetch(userId);
+    return user.displayName;
+  } catch (error) {
+    console.error(`Erro ao obter o DisplayNameDiscord para o usuário ${userId}:`, error);
+    return userId; // Caso haja erro, retorna o ID do usuário como fallback
+  }
+}
+
+
