@@ -73,13 +73,13 @@ client.once("ready", async () => {
           components = [
             new Discord.ActionRowBuilder().addComponents(
               new Discord.ButtonBuilder()
-                .setCustomId("botao1_logbau")
-                .setLabel("Botão 1")
+                .setCustomId("add_Item")
+                .setLabel("Colocar Item no Baú")
                 .setStyle(Discord.ButtonStyle.Primary),
               new Discord.ButtonBuilder()
-                .setCustomId("botao2_logbau")
-                .setLabel("Botão 2")
-                .setStyle(Discord.ButtonStyle.Secondary)
+                .setCustomId("rem_Item")
+                .setLabel("Pegar Item do Baú")
+                .setStyle(Discord.ButtonStyle.Danger)
             ),
           ];
         }
