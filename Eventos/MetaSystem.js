@@ -20,13 +20,17 @@ db.serialize(() => {
 
 // Função para inicializar as metas no banco de dados
 function initializeMetas(usuario_id, callback) {
-  const metas = JSON.stringify(config.METAS_FARM.metaglobal);
+  const metas = config.METAS_FARM.metaglobal.map(meta => ({
+    item: meta.item,
+    quantidade: 0
+  }));
   db.run(
     `INSERT OR REPLACE INTO usuarios (usuario_id, metas) VALUES (?, ?)`,
-    [usuario_id, metas],
+    [usuario_id, JSON.stringify(metas)],
     callback
   );
 }
+
 
 // Função para enviar as metas e atualizar o banco de dados
 function updateMetas(usuario_id, items, callback) {
@@ -47,7 +51,9 @@ function updateMetas(usuario_id, items, callback) {
         items.forEach(({ item, quantidade }) => {
           let meta = metas.find((meta) => meta.item === item);
           if (meta) {
-            meta.quantidade = Math.max(meta.quantidade - quantidade, 0);
+            meta.quantidade += quantidade;
+          } else {
+            metas.push({ item, quantidade });
           }
         });
 
@@ -60,6 +66,7 @@ function updateMetas(usuario_id, items, callback) {
     }
   );
 }
+
 
 client.on("interactionCreate", async (interaction) => {
   const usuario_id = interaction.user.id;
@@ -97,7 +104,7 @@ client.on("interactionCreate", async (interaction) => {
               ephemeral: true,
             });
           }
-
+    
           if (!row || !row.metas) {
             initializeMetas(usuario_id, (err) => {
               if (err) {
@@ -106,7 +113,7 @@ client.on("interactionCreate", async (interaction) => {
                   ephemeral: true,
                 });
               }
-
+    
               return interaction.reply({
                 content: "Metas inicializadas!",
                 ephemeral: true,
@@ -114,16 +121,23 @@ client.on("interactionCreate", async (interaction) => {
             });
           } else {
             const metas = JSON.parse(row.metas);
+            const globalMetas = config.METAS_FARM.metaglobal;
+            
+    
             let response = "Suas metas:\n";
-            metas.forEach((meta) => {
-              response += `Item: ${meta.item}, Quantidade restante: ${meta.quantidade}\n`;
+            globalMetas.forEach((globalMeta) => {
+              console.log(globalMeta)
+              let userMeta = metas.find((meta) => meta.item === globalMeta.item);
+              let restante = globalMeta.quantidade - (userMeta ? userMeta.quantidade : 0);
+              response += `Item: ${globalMeta.item}, Quantidade restante: ${restante}\n`;
             });
-
+    
             return interaction.reply({ content: response, ephemeral: true });
           }
         }
       );
     }
+    
 
     if (
       interaction.customId === "add_farm" ||
