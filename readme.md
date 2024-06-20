@@ -64,6 +64,12 @@ O GTARP Roleplay Factions Bot é um bot de Discord desenvolvido em Node.js que o
                 "canal_bau":"",
             },
 
+            "LOGS" : {
+              "Canal_log_ponto": "",
+              "Canal_log_metas": "",
+              "Canal_log_bau": ""
+
+            },
             "METAS_FARM": {
                 "metaglobal": [
                         {"quantidade": 3, "item": "item 1"},
@@ -89,6 +95,9 @@ No arquivo `config.json`, configure as seguintes variáveis:
 - `canal_ponto"`: Configura o canal destinado a Bate-Ponto
 - `canal_metas"`: Configura o canal destinado a Metas de Farm
 - `canal_bau"`: Configura o canal destinado a Envio de Baús
+- `Canal_log_ponto"`: Variavel de informação para envio de logs de bate-ponto
+- `Canal_log_metas"`: Variavel de informação para envio de logs de metas
+- `Canal_log_bau"`: Variavel de informação para envio de logs de baú
 - `metaglobal`: Array que Define Objetos para envio de farm
 
 ## Comandos
@@ -104,7 +113,8 @@ No arquivo `config.json`, configure as seguintes variáveis:
 ### Comandos de Ranking
 
 - `/ranking ponto`: ver a posição do usuario no ranking de bate-ponto.
-- `/ranking metas`: ver a posição do usuario no ranking de metas/farm .
+- `/ranking metas`: ver a posição do usuario no ranking de metas/farm.
+- `/ranking misto`: ver a posição do usuario no ranking de metas/farm.
 
 ## Contribuição
 
