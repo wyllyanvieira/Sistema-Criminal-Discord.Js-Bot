@@ -51,7 +51,5 @@ fs.readdir("./Eventos", (err, file) => {
   file.forEach((event) => {
     require(`./Eventos/${event}`);
   });
-  setTimeout(() => {
-    console.log("✅ - O sistema de eventos foi iniciado!");
-  }, 2000);
+
 });
