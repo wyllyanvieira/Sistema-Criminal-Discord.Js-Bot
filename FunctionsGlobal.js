@@ -1,25 +1,48 @@
-
-const sqlite3 = require("sqlite3").verbose();
-
-const db = new sqlite3.Database('./database.db');
-
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    type TEXT NOT NULL,
-    text TEXT NOT NULL,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
-});
+const sqlite3 = require("sqlite3");
+const config = require("./config.json");
+const Discord = require("discord.js");
+const client = require("./index");
+const db = new sqlite3.Database("./database.db");
 
 function log(type, text) {
-  db.run(`INSERT INTO logs (type, text) VALUES (?, ?)`, [type, text], function(err) {
-    if (err) {
-      return console.error(err.message);
-    }
-    console.log(`Log salvo: ${type} - ${text}`);
-  });
+  let channelId;
+  switch (type) {
+    case 'ponto':
+      channelId = config.LOGS.Canal_log_ponto;
+      break;
+    case 'metas':
+      channelId = config.LOGS.Canal_log_metas;
+      break;
+    case 'bau':
+      channelId = config.LOGS.Canal_log_bau;
+      break;
+    default:
+      console.error(`Tipo de log desconhecido: ${type}`);
+      return;
+  }
+
+  // Verifica se o canal está configurado
+  if (!channelId) {
+    console.error(`Canal de log não configurado para o tipo: ${type}`);
+    return;
+  }
+  
+  // Fetch the channel and send the message
+  client.channels.fetch(channelId)
+    .then(channel => {
+      if (channel) {
+        channel.send(text).catch(err => {
+          console.error(`Erro ao enviar mensagem no canal: ${err}`);
+        });
+      } else {
+        console.error(`Canal não encontrado: ${channelId}`);
+      }
+    })
+    .catch(err => {
+      console.error(`Erro ao buscar o canal: ${err}`);
+    });
 }
+
 
 function formatarTempo(segundos) {
   const horas = Math.floor(segundos / 3600);

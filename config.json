@@ -12,7 +12,12 @@
     "canal_metas":"1250416068409819146",
     "canal_bau":"1250416082582245416"
   },
+  "LOGS" : {
+    "Canal_log_ponto": "1250211459162443776",
+    "Canal_log_metas": "1250211459162443776",
+    "Canal_log_bau": "1250211459162443776"
 
+  },
   
   "METAS_FARM": {
     "metaglobal": [

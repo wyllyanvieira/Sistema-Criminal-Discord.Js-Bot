@@ -113,12 +113,6 @@ client.on("interactionCreate", async (interaction) => {
                 emoji: "🧹"
               },
               {
-                label: "Visualizar Logs",
-                value: "logviewer",
-                description: "Visualiza os logs",
-                emoji: "📑"
-              },
-              {
                 label: "Fechar Pontos Abertos",
                 value: "fechar_ponto_admin",
                 description: "Fechar pontos abertos",
