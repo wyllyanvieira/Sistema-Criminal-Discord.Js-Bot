@@ -7,8 +7,12 @@ const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
 
 const width = 1280; // largura do gráfico
 const height = 720; // altura do gráfico
-const backgroundColour = 'white'; // Uses https://www.w3schools.com/tags/canvas_fillstyle.asp
-const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
+const backgroundColour = "white"; // Uses https://www.w3schools.com/tags/canvas_fillstyle.asp
+const chartJSNodeCanvas = new ChartJSNodeCanvas({
+  width,
+  height,
+  backgroundColour,
+});
 
 module.exports = {
   name: "ranking",
@@ -27,7 +31,8 @@ module.exports = {
     },
     {
       name: "misto",
-      description: "Veja o ranking das pessoas com mais desempenho dentro da organização.",
+      description:
+        "Veja o ranking das pessoas com mais desempenho dentro da organização.",
       type: Discord.ApplicationCommandOptionType.Subcommand,
     },
   ],
@@ -164,76 +169,106 @@ module.exports = {
           createAndSendChart(interaction, resposta, rankingData);
         }, 1000);
       });
-    }else if (interaction.options.getSubcommand() === "misto") {
-      db.all(`SELECT usuario_id, metas, intervalos FROM usuarios`, async (err, rows) => {
-        if (err) {
-          return interaction.editReply({
-            content: "Erro ao obter ranking misto.",
-          });
-        }
-
-        const farmData = rows.map((row) => {
-          const metas = JSON.parse(row.metas);
-          const totalFarm = metas.reduce(
-            (total, meta) => total + meta.quantidade,
-            0
-          );
-          return {
-            usuario_id: row.usuario_id,
-            totalFarm,
-          };
-        });
-
-        const pontoData = rows.map((row) => {
-          const intervalosArray = row.intervalos ? JSON.parse(row.intervalos) : [];
-          const tempoTotal = intervalosArray.reduce(
-            (acc, intervalo) => acc + intervalo,
-            0
-          );
-          const tempoAbertoAtual = row.aberto
-            ? (new Date() - new Date(row.aberto)) / 1000
-            : 0;
-          return {
-            idUsuario: row.usuario_id,
-            tempoTotal: tempoTotal + tempoAbertoAtual,
-          };
-        });
-
-        farmData.sort((a, b) => b.totalFarm - a.totalFarm);
-        pontoData.sort((a, b) => b.tempoTotal - a.tempoTotal);
-
-        var d = new Date();
-        let resposta = `# Ranking Misto (Farm e Tempo de Ponto): \n- Solicitado por: ${interaction.user} \n- Data: ${d} \n\n`;
-
-        for (let i = 0; i < Math.min(farmData.length, pontoData.length, 5); i++) {
-          const farmUser = farmData[i];
-          const pontoUser = pontoData[i];
-          try {
-            const memberFarm = await interaction.guild.members.fetch(farmUser.usuario_id);
-            const memberPonto = await interaction.guild.members.fetch(pontoUser.idUsuario);
-
-            const nomeFarm = memberFarm ? memberFarm.displayName : `ID: ${farmUser.usuario_id}`;
-            const nomePonto = memberPonto ? memberPonto.displayName : `ID: ${pontoUser.idUsuario}`;
-
-            let emoji = "";
-            if (i === 0) emoji = "`🥇` ";
-            else if (i === 1) emoji = "`🥈` ";
-            else if (i === 2) emoji = "`🥉` ";
-            else emoji = "`🎖️` ";
-
-            resposta += `${emoji}${nomeFarm}: ${FunctionsGlobal.formatarTempo(pontoUser.tempoTotal)} | ${farmUser.totalFarm} farms realizados\n`;
-          } catch (error) {
-            console.error(error);
+    } else if (interaction.options.getSubcommand() === "misto") {
+      db.all(
+        `SELECT usuario_id, metas, intervalos FROM usuarios`,
+        async (err, rows) => {
+          if (err) {
+            return interaction.editReply({
+              content: "Erro ao obter ranking misto.",
+            });
           }
+
+          const farmData = rows.map((row) => {
+            const metas = JSON.parse(row.metas);
+            const totalFarm = metas.reduce(
+              (total, meta) => total + meta.quantidade,
+              0
+            );
+            return {
+              usuario_id: row.usuario_id,
+              totalFarm,
+            };
+          });
+
+          const pontoData = rows.map((row) => {
+            const intervalosArray = row.intervalos
+              ? JSON.parse(row.intervalos)
+              : [];
+            const tempoTotal = intervalosArray.reduce(
+              (acc, intervalo) => acc + intervalo,
+              0
+            );
+            const tempoAbertoAtual = row.aberto
+              ? (new Date() - new Date(row.aberto)) / 1000
+              : 0;
+            return {
+              idUsuario: row.usuario_id,
+              tempoTotal: tempoTotal + tempoAbertoAtual,
+            };
+          });
+
+          farmData.sort((a, b) => b.totalFarm - a.totalFarm);
+          pontoData.sort((a, b) => b.tempoTotal - a.tempoTotal);
+
+          var d = new Date();
+          let resposta = `# Ranking Misto (Farm e Tempo de Ponto): \n- Solicitado por: ${interaction.user} \n- Data: ${d} \n\n`;
+
+          for (
+            let i = 0;
+            i < Math.min(farmData.length, pontoData.length, 5);
+            i++
+          ) {
+            const farmUser = farmData[i];
+            const pontoUser = pontoData[i];
+            try {
+              const memberFarm = await interaction.guild.members.fetch(
+                farmUser.usuario_id
+              );
+              const memberPonto = await interaction.guild.members.fetch(
+                pontoUser.idUsuario
+              );
+
+              const nomeFarm = memberFarm
+                ? memberFarm.displayName
+                : `ID: ${farmUser.usuario_id}`;
+              const nomePonto = memberPonto
+                ? memberPonto.displayName
+                : `ID: ${pontoUser.idUsuario}`;
+
+              let emoji = "";
+              if (i === 0) emoji = "`🥇` ";
+              else if (i === 1) emoji = "`🥈` ";
+              else if (i === 2) emoji = "`🥉` ";
+              else emoji = "`🎖️` ";
+
+              resposta += `${emoji}${nomeFarm}: ${FunctionsGlobal.formatarTempo(
+                pontoUser.tempoTotal
+              )} | ${farmUser.totalFarm} farms realizados\n`;
+            } catch (error) {
+              console.error(error);
+            }
+          }
+
+          const farmRankingData = farmData.map((user) => ({
+            nome: user.usuario_id,
+            valor: user.totalFarm,
+          }));
+          const pontoRankingData = pontoData.map((user) => ({
+            nome: user.idUsuario,
+            valor: user.tempoTotal,
+          }));
+
+          setTimeout(() => {
+            createAndSendMultiAxisChart(
+              interaction,
+              resposta,
+              farmRankingData,
+              pontoRankingData
+            );
+          }, 1000);
         }
-
-        const farmRankingData = farmData.map(user => ({ nome: user.usuario_id, valor: user.totalFarm }));
-        const pontoRankingData = pontoData.map(user => ({ nome: user.idUsuario, valor: user.tempoTotal }));
-
-        setTimeout(() => {
-          createAndSendMultiAxisChart(interaction, resposta, farmRankingData, pontoRankingData);
-        }, 1000);
-      });
+      );
     }
   },
 };
@@ -278,68 +313,75 @@ async function createAndSendChart(interaction, response, rankingData) {
   await interaction.channel.send({ content: response, files: [attachment] });
 }
 
-async function createAndSendMultiAxisChart(interaction, response, farmData, pontoData) {
-  const labels = farmData.map(user => user.nome); // Usaremos os nomes dos usuários como labels
-  const farmValues = farmData.map(user => user.valor);
-  const pontoValues = pontoData.map(user => user.valor);
+async function createAndSendMultiAxisChart(
+  interaction,
+  response,
+  farmData,
+  pontoData
+) {
+  const labels = farmData.map((user) => user.nome); // Usaremos os nomes dos usuários como labels
+  const farmValues = farmData.map((user) => user.valor);
+  const pontoValues = pontoData.map((user) => user.valor);
 
   const configuration = {
-    type: 'line',
+    type: "line",
     data: {
       labels: labels,
       datasets: [
         {
-          label: 'Farm',
-          yAxisID: 'farm',
+          label: "Farm",
+          yAxisID: "farm",
           data: farmValues,
-          borderColor: 'rgba(255, 99, 132, 1)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: "rgba(255, 99, 132, 1)",
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
           borderWidth: 1,
-          fill: false
+          fill: false,
         },
         {
-          label: 'Tempo de Ponto',
-          yAxisID: 'ponto',
+          label: "Tempo de Ponto",
+          yAxisID: "ponto",
           data: pontoValues,
-          borderColor: 'rgba(54, 162, 235, 1)',
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: "rgba(54, 162, 235, 1)",
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
           borderWidth: 1,
-          fill: false
-        }
-      ]
+          fill: false,
+        },
+      ],
     },
     options: {
       responsive: true,
       plugins: {
         title: {
           display: true,
-          text: 'Ranking Misto (Farm e Tempo de Ponto)'
-        }
+          text: "Ranking Misto (Farm e Tempo de Ponto)",
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
           title: {
             display: true,
-            text: 'Tempo de Ponto'
-          }
+            text: "Tempo de Ponto",
+          },
         },
         farm: {
-          position: 'right',
+          position: "right",
           title: {
             display: true,
-            text: 'Farm'
+            text: "Farm",
           },
           grid: {
-            drawOnChartArea: false
-          }
-        }
-      }
-    }
+            drawOnChartArea: false,
+          },
+        },
+      },
+    },
   };
 
   const buffer = await chartJSNodeCanvas.renderToBuffer(configuration);
-  const attachment = new Discord.AttachmentBuilder(buffer, { name: 'grafico.png' });
+  const attachment = new Discord.AttachmentBuilder(buffer, {
+    name: "grafico.png",
+  });
 
   await interaction.channel.send({ content: response, files: [attachment] });
 }
