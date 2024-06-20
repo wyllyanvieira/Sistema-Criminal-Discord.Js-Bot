@@ -8,7 +8,7 @@ client.once("ready", async () => {
   const canais = {
     mensagem_ponto: config.CANAIS.canal_ponto,
     mensagem_metas: config.CANAIS.canal_metas,
-    mensagem_logbau: config.CANAIS.canal_bau
+    mensagem_logbau: config.CANAIS.canal_bau,
   };
 
   for (const [tipo, canalId] of Object.entries(canais)) {
@@ -72,14 +72,36 @@ client.once("ready", async () => {
 
           components = [
             new Discord.ActionRowBuilder().addComponents(
-              new Discord.ButtonBuilder()
-                .setCustomId("add_Item")
-                .setLabel("Colocar Item no Baú")
-                .setStyle(Discord.ButtonStyle.Primary),
-              new Discord.ButtonBuilder()
-                .setCustomId("rem_Item")
-                .setLabel("Pegar Item do Baú")
-                .setStyle(Discord.ButtonStyle.Danger)
+              new Discord.StringSelectMenuBuilder()
+                .setCustomId("admin_select")
+                .setPlaceholder("⚙️ | Selecione uma opção")
+                .addOptions([
+                  {
+                    label: "Adcionar Item",
+                    emoji: "🎒",
+                    description: "Informe a Adição de Items do báu da Organização",
+                    value: "add_item",
+                  },
+                  {
+                    label: "Remover Item",
+                    emoji: "🎒",
+                    description:
+                      "Informe a Remoção de Items do báu da Organização",
+                    value: "rem_item",
+                  },
+                  {
+                    label: "Adcionar Dinheiro",
+                    emoji: "💰",
+                    description: "Registre a Adição do dinheiro do caixa da Organização",
+                    value: "add_money",
+                  },
+                  {
+                    label: "Remover Dinheiro",
+                    emoji: "💰",
+                    description: "Registre a remoção do dinheiro do caixa da Organização",
+                    value: "rem_money",
+                  },
+                ])
             ),
           ];
         }
