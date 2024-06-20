@@ -20,9 +20,9 @@ db.serialize(() => {
 
 // Função para inicializar as metas no banco de dados
 function initializeMetas(usuario_id, callback) {
-  const metas = config.METAS_FARM.metaglobal.map(meta => ({
+  const metas = config.METAS_FARM.metaglobal.map((meta) => ({
     item: meta.item,
-    quantidade: 0
+    quantidade: 0,
   }));
   db.run(
     `INSERT OR REPLACE INTO usuarios (usuario_id, metas) VALUES (?, ?)`,
@@ -30,7 +30,6 @@ function initializeMetas(usuario_id, callback) {
     callback
   );
 }
-
 
 // Função para enviar as metas e atualizar o banco de dados
 function updateMetas(usuario_id, items, callback) {
@@ -66,7 +65,6 @@ function updateMetas(usuario_id, items, callback) {
     }
   );
 }
-
 
 client.on("interactionCreate", async (interaction) => {
   const usuario_id = interaction.user.id;
@@ -104,7 +102,7 @@ client.on("interactionCreate", async (interaction) => {
               ephemeral: true,
             });
           }
-    
+
           if (!row || !row.metas) {
             initializeMetas(usuario_id, (err) => {
               if (err) {
@@ -113,7 +111,7 @@ client.on("interactionCreate", async (interaction) => {
                   ephemeral: true,
                 });
               }
-    
+
               return interaction.reply({
                 content: "Metas inicializadas!",
                 ephemeral: true,
@@ -122,22 +120,23 @@ client.on("interactionCreate", async (interaction) => {
           } else {
             const metas = JSON.parse(row.metas);
             const globalMetas = config.METAS_FARM.metaglobal;
-            
-    
+
             let response = "Suas metas:\n";
             globalMetas.forEach((globalMeta) => {
-              console.log(globalMeta)
-              let userMeta = metas.find((meta) => meta.item === globalMeta.item);
-              let restante = globalMeta.quantidade - (userMeta ? userMeta.quantidade : 0);
+              console.log(globalMeta);
+              let userMeta = metas.find(
+                (meta) => meta.item === globalMeta.item
+              );
+              let restante =
+                globalMeta.quantidade - (userMeta ? userMeta.quantidade : 0);
               response += `Item: ${globalMeta.item}, Quantidade restante: ${restante}\n`;
             });
-    
+
             return interaction.reply({ content: response, ephemeral: true });
           }
         }
       );
     }
-    
 
     if (
       interaction.customId === "add_farm" ||
@@ -225,7 +224,8 @@ client.on("interactionCreate", async (interaction) => {
 
       if (items.length === 0) {
         return interaction.reply({
-          content: "<:icons_Wrong75:1198037616956821515> | Formato dos itens inválido.",
+          content:
+            "<:icons_Wrong75:1198037616956821515> | Formato dos itens inválido.",
           ephemeral: true,
         });
       }
@@ -244,106 +244,102 @@ client.on("interactionCreate", async (interaction) => {
       updateMetas(usuario_id, items, (err) => {
         if (err) {
           return interaction.reply({
-            content: "<:icons_Wrong75:1198037616956821515> | Erro ao enviar meta.",
+            content:
+              "<:icons_Wrong75:1198037616956821515> | Erro ao enviar meta.",
             ephemeral: true,
           });
         }
 
         return interaction.reply({
-          content: "<:newmember:1197986072039264266> | Meta enviada com sucesso!",
+          content:
+            "<:newmember:1197986072039264266> | Meta enviada com sucesso!",
           ephemeral: true,
         });
       });
-    } else {
-      const targetUserId = interaction.fields.getTextInputValue("user_id");
+    }
+    if (interaction.customId === "add_farm_modal") {
+      const item = interaction.fields.getTextInputValue("farm_item");
+      const quantidade = parseInt(
+        interaction.fields.getTextInputValue("farm_quantidade"),
+        10
+      );
 
-      if (!targetUserId) {
+      if (!item || isNaN(quantidade)) {
         return interaction.reply({
-          content: "<:icons_Wrong75:1198037616956821515> | ID do usuário inválido.",
+          content: "<:icons_Wrong75:1198037616956821515> | Valores inválidos.",
           ephemeral: true,
         });
       }
 
-      if (interaction.customId === "add_farm_modal") {
-        const item = interaction.fields.getTextInputValue("farm_item");
-        const quantidade = parseInt(
-          interaction.fields.getTextInputValue("farm_quantidade"),
-          10
-        );
-
-        if (!item || isNaN(quantidade)) {
+      // Atualiza o banco de dados para adicionar a farm
+      updateMetas(targetUserId, [{ item, quantidade: -quantidade }], (err) => {
+        if (err) {
           return interaction.reply({
-            content: "<:icons_Wrong75:1198037616956821515> | Valores inválidos.",
+            content:
+              "<:icons_Wrong75:1198037616956821515> | Erro ao adicionar farm.",
             ephemeral: true,
           });
         }
 
-        // Atualiza o banco de dados para adicionar a farm
-        updateMetas(
-          targetUserId,
-          [{ item, quantidade: -quantidade }],
-          (err) => {
-            if (err) {
-              return interaction.reply({
-                content: "<:icons_Wrong75:1198037616956821515> | Erro ao adicionar farm.",
-                ephemeral: true,
-              });
-            }
+        return interaction.reply({
+          content:
+            "<:ecomode:1197986068545425511> | Farm adicionada com sucesso!",
+          ephemeral: true,
+        });
+      });
+    }
 
-            return interaction.reply({
-              content: "<:ecomode:1197986068545425511> | Farm adicionada com sucesso!",
-              ephemeral: true,
-            });
-          }
-        );
+    if (interaction.customId === "remove_farm_modal") {
+      const item = interaction.fields.getTextInputValue("farm_item");
+      const quantidade = parseInt(
+        interaction.fields.getTextInputValue("farm_quantidade"),
+        10
+      );
+
+      if (!item || isNaN(quantidade)) {
+        return interaction.reply({
+          content: "<:icons_Wrong75:1198037616956821515> | Valores inválidos.",
+          ephemeral: true,
+        });
       }
 
-      if (interaction.customId === "remove_farm_modal") {
-        const item = interaction.fields.getTextInputValue("farm_item");
-        const quantidade = parseInt(
-          interaction.fields.getTextInputValue("farm_quantidade"),
-          10
-        );
-
-        if (!item || isNaN(quantidade)) {
+      // Atualiza o banco de dados para remover a farm
+      updateMetas(targetUserId, [{ item, quantidade }], (err) => {
+        if (err) {
           return interaction.reply({
-            content: "<:icons_Wrong75:1198037616956821515> | Valores inválidos.",
+            content:
+              "<:icons_Wrong75:1198037616956821515> | Erro ao remover farm.",
             ephemeral: true,
           });
         }
 
-        // Atualiza o banco de dados para remover a farm
-        updateMetas(targetUserId, [{ item, quantidade }], (err) => {
-          if (err) {
-            return interaction.reply({
-              content: "<:icons_Wrong75:1198037616956821515> | Erro ao remover farm.",
-              ephemeral: true,
-            });
-          }
+        return interaction.reply({
+          content:
+            "<:iconscorrect:1198037618361905345> | Farm removida com sucesso!",
+          ephemeral: true,
+        });
+      });
+    }
 
+    if (interaction.customId === "reset_farm_modal") {
+  
+        
+
+      initializeMetas(targetUserId, (err) => {
+        if (err) {
           return interaction.reply({
-            content: "<:iconscorrect:1198037618361905345> | Farm removida com sucesso!",
+            content:
+              "<:icons_Wrong75:1198037616956821515> | Erro ao resetar farms.",
             ephemeral: true,
           });
-        });
-      }
+        }
 
-      if (interaction.customId === "reset_farm_modal") {
-        // Inicializa as metas para resetar
-        initializeMetas(targetUserId, (err) => {
-          if (err) {
-            return interaction.reply({
-              content: "<:icons_Wrong75:1198037616956821515> | Erro ao resetar farms.",
-              ephemeral: true,
-            });
-          }
-
-          return interaction.reply({
-            content: "<:iconscorrect:1198037618361905345> | Farms resetadas com sucesso!",
-            ephemeral: true,
-          });
+        return interaction.reply({
+          content:
+            "<:iconscorrect:1198037618361905345> | Farms resetadas com sucesso!",
+          ephemeral: true,
         });
-      }
+      });
     }
   }
 });
