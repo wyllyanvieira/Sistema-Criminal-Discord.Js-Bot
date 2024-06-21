@@ -151,7 +151,6 @@ client.on("interactionCreate", async (interaction) => {
   if (!interaction.isStringSelectMenu()) return;
   if (interaction.customId === "admin_select") {
     if (interaction.values[0] === "fechar_ponto_admin") {
-      console.log("foi");
       if (
         !interaction.member.permissions.has(
           Discord.PermissionsBitField.Flags.ManageMessages
@@ -204,7 +203,6 @@ client.on("interactionCreate", async (interaction) => {
             })
           );
 
-          console.log(options);
 
           const dropdown = new Discord.StringSelectMenuBuilder()
             .setCustomId("fechar_ponto_dropdown")
