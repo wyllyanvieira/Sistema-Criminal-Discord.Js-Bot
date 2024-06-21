@@ -13,7 +13,7 @@ function log(type, text) {
     case 'metas':
       channelId = config.LOGS.Canal_log_metas;
       break;
-    case 'bau':
+    case 'chest':
       channelId = config.LOGS.Canal_log_bau;
       break;
     default:
