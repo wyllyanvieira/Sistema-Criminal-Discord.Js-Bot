@@ -259,6 +259,7 @@ client.on("interactionCreate", async (interaction) => {
     }
     if (interaction.customId === "add_farm_modal") {
       const item = interaction.fields.getTextInputValue("farm_item");
+      const targetUserId = interaction.fields.getTextInputValue("user_id");
       const quantidade = parseInt(
         interaction.fields.getTextInputValue("farm_quantidade"),
         10
@@ -270,7 +271,7 @@ client.on("interactionCreate", async (interaction) => {
           ephemeral: true,
         });
       }
-
+      
       // Atualiza o banco de dados para adicionar a farm
       updateMetas(targetUserId, [{ item, quantidade: -quantidade }], (err) => {
         if (err) {
@@ -290,6 +291,7 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     if (interaction.customId === "remove_farm_modal") {
+      const targetUserId = interaction.fields.getTextInputValue("user_id");
       const item = interaction.fields.getTextInputValue("farm_item");
       const quantidade = parseInt(
         interaction.fields.getTextInputValue("farm_quantidade"),
@@ -322,7 +324,7 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     if (interaction.customId === "reset_farm_modal") {
-  
+      const targetUserId = interaction.fields.getTextInputValue("user_id");
         
 
       initializeMetas(targetUserId, (err) => {
