@@ -109,8 +109,14 @@ client.on("interactionCreate", async (interaction) => {
               {
                 label: "Limpar Rankings",
                 value: "limpar_rankings",
-                description: "Limpa os rankings",
+                description: "Limpar os rankings",
                 emoji: "🧹"
+              },
+              {
+                label: "Visualizar Baú",
+                value: "view_chest",
+                description: "Verfiicar Items do Baú",
+                emoji: "🎒"
               },
               {
                 label: "Fechar Pontos Abertos",
