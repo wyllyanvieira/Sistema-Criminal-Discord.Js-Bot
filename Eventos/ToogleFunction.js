@@ -77,7 +77,6 @@ client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
 
   if (interaction.customId === "abrir_ponto") {
-
     db.get(
       "SELECT * FROM usuarios WHERE usuario_id = ?",
       [idUsuario],
@@ -203,7 +202,6 @@ client.on("interactionCreate", async (interaction) => {
             })
           );
 
-
           const dropdown = new Discord.StringSelectMenuBuilder()
             .setCustomId("fechar_ponto_dropdown")
             .setPlaceholder("Selecione o usuário para fechar o ponto")
@@ -278,95 +276,216 @@ client.on("interactionCreate", async (interaction) => {
 //////////////SISTEMA DE ADCIONAR E REMOVER TEMPO DE PONTO ADMIN/////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-client.on('interactionCreate', async (interaction) => {
+client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
 
   const idUsuario = interaction.user.id;
-  if (interaction.customId === 'adicionar_tempo' || interaction.customId === 'remover_tempo') {
+  if (
+    interaction.customId === "adicionar_tempo" ||
+    interaction.customId === "remover_tempo"
+  ) {
     await interaction.reply({
-      content: "> <:member:1197986380781985903> | Por favor, mencione o usuário para quem deseja adicionar/remover tempo:",
+      content:
+        "> <:member:1197986380781985903> | Por favor, mencione o usuário para quem deseja adicionar/remover tempo:",
       ephemeral: true,
     });
-  
-    const filter = m => m.author.id === interaction.user.id;
-    const collector = interaction.channel.createMessageCollector({ filter, time: 60000, max: 2 });
-  
+
+    const filter = (m) => m.author.id === interaction.user.id;
+    const collector = interaction.channel.createMessageCollector({
+      filter,
+      time: 60000,
+      max: 2,
+    });
+
     let usuarioId = null;
     let tempo = null;
-  
-    collector.on('collect', m => {
+
+    collector.on("collect", (m) => {
       if (!usuarioId) {
         if (m.mentions.users.size > 0) {
           usuarioId = m.mentions.users.first().id;
-          m.reply("> <:ecomode:1197986068545425511> | Agora, insira o tempo a ser adicionado/removido em segundos:");
+          m.reply(
+            "> <:ecomode:1197986068545425511> | Agora, insira o tempo a ser adicionado/removido em segundos:"
+          );
         } else {
-          m.reply("> <:icons_Wrong75:1198037616956821515> | Por favor, mencione um usuário válido.");
+          m.reply(
+            "> <:icons_Wrong75:1198037616956821515> | Por favor, mencione um usuário válido."
+          );
         }
       } else {
         tempo = parseInt(m.content);
         if (isNaN(tempo)) {
-          m.reply("> <:icons_Wrong75:1198037616956821515> | Por favor, insira um valor numérico válido.");
+          m.reply(
+            "> <:icons_Wrong75:1198037616956821515> | Por favor, insira um valor numérico válido."
+          );
         } else {
           collector.stop();
         }
       }
     });
-  
-    collector.on('end', collected => {
+
+    collector.on("end", (collected) => {
       if (!usuarioId || isNaN(tempo)) {
         interaction.followUp({
-          content: "> <:icons_Wrong75:1198037616956821515> | Coleta de dados interrompida ou incompleta.",
+          content:
+            "> <:icons_Wrong75:1198037616956821515> | Coleta de dados interrompida ou incompleta.",
           ephemeral: true,
         });
         return;
       }
-  
-      db.get("SELECT * FROM usuarios WHERE usuario_id = ?", [usuarioId], async (err, row) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-  
-        if (!row) {
-          interaction.followUp({
-            content: "> <:icons_Wrong75:1198037616956821515> | Usuário não encontrado.",
-            ephemeral: true,
-          });
-          return;
-        }
-  
-        let novosIntervalos = [];
-        if (row.intervalos) {
-          novosIntervalos = JSON.parse(row.intervalos);
-        }
-  
-        if (interaction.customId === 'adicionar_tempo') {
-          novosIntervalos.push(tempo);
-        } else if (interaction.customId === 'remover_tempo') {
-          if (novosIntervalos.length > 0) {
-            novosIntervalos.pop();
-          } else {
+
+      db.get(
+        "SELECT * FROM usuarios WHERE usuario_id = ?",
+        [usuarioId],
+        async (err, row) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          if (!row) {
             interaction.followUp({
-              content: "> <:icons_Wrong75:1198037616956821515> | Não há intervalos para remover.",
+              content:
+                "> <:icons_Wrong75:1198037616956821515> | Usuário não encontrado.",
               ephemeral: true,
             });
             return;
           }
+
+          let novosIntervalos = [];
+          if (row.intervalos) {
+            novosIntervalos = JSON.parse(row.intervalos);
+          }
+
+          if (interaction.customId === "adicionar_tempo") {
+            novosIntervalos.push(tempo);
+          } else if (interaction.customId === "remover_tempo") {
+            if (novosIntervalos.length > 0) {
+              novosIntervalos.pop();
+            } else {
+              interaction.followUp({
+                content:
+                  "> <:icons_Wrong75:1198037616956821515> | Não há intervalos para remover.",
+                ephemeral: true,
+              });
+              return;
+            }
+          }
+
+          db.run(
+            "UPDATE usuarios SET intervalos = ? WHERE usuario_id = ?",
+            [JSON.stringify(novosIntervalos), usuarioId],
+            (err) => {
+              if (err) console.error(err);
+            }
+          );
+
+          interaction.followUp({
+            content: `> <:iconscorrect:1198037618361905345> | Tempo ${
+              interaction.customId === "adicionar_tempo"
+                ? "adicionado"
+                : "removido"
+            } com sucesso!`,
+            ephemeral: true,
+          });
+          FunctionsGlobal.log(
+            "admin",
+            `Usuario <@${idUsuario}> ${
+              interaction.customId === "adicionar_tempo"
+                ? "**Adicionou**"
+                : "**Removeu**"
+            } **${FunctionsGlobal.formatarTempo(tempo)}** de <@${usuarioId}>`
+          );
         }
-  
-        db.run("UPDATE usuarios SET intervalos = ? WHERE usuario_id = ?", [JSON.stringify(novosIntervalos), usuarioId], (err) => {
-          if (err) console.error(err);
-        });
-  
-        interaction.followUp({
-          content: `> <:iconscorrect:1198037618361905345> | Tempo ${interaction.customId === 'adicionar_tempo' ? 'adicionado' : 'removido'} com sucesso!`,
-          ephemeral: true,
-        });
-        FunctionsGlobal.log('admin', `Usuario <@${idUsuario}> ${interaction.customId === 'adicionar_tempo' ? '**Adicionou**' : '**Removeu**'} **${FunctionsGlobal.formatarTempo(tempo)}** de <@${usuarioId}>`)
-      });
+      );
     });
   }
-  
-  
 });
 
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isStringSelectMenu()) return;
+  if (interaction.customId === "admin_select") {
+    if (interaction.values[0] === "limpar_rankings") {
+      let collector; // Mova a declaração da variável collector para fora do bloco else
+
+      if (!interaction.member.permissions.has("MANAGE_MESSAGES")) {
+        interaction.reply({
+          content: `<:icons_Wrong75:1198037616956821515> | Você não possui permissão para utilizar este comando.`,
+          ephemeral: true,
+        });
+      } else {
+        const confirmButton = new Discord.ButtonBuilder()
+          .setCustomId("confirm_clear")
+          .setLabel("Confirmar Limpeza")
+          .setStyle(Discord.ButtonStyle.Danger);
+
+        const cancelButton = new Discord.ButtonBuilder()
+          .setCustomId("cancel_clear")
+          .setLabel("Cancelar")
+          .setStyle(Discord.ButtonStyle.Primary);
+
+        const row = new Discord.ActionRowBuilder().addComponents(
+          confirmButton,
+          cancelButton
+        );
+
+        interaction.reply({
+          content:
+            "## <:management:1197986783808471171> | Você tem certeza de que deseja limpar completamente o banco de dados de pontos?",
+          components: [row],
+          ephemeral: true,
+        });
+
+        const filter = (i) =>
+          i.customId === "confirm_clear" || i.customId === "cancel_clear";
+        collector = interaction.channel.createMessageComponentCollector({
+          filter,
+          time: 15000,
+        });
+
+        collector.on("collect", async (i) => {
+          if (i.customId === "confirm_clear") {
+            // Limpa as colunas específicas da tabela usuarios
+            db.run(
+              "UPDATE usuarios SET aberto = NULL, metas = '[]', intervalos = '[]'",
+              (err) => {
+                if (err) {
+                  console.error(err);
+                  return interaction.editReply({
+                    content:
+                      "<:icons_Wrong75:1198037616956821515> | Ocorreu um erro ao limpar o banco de dados.",
+                    components: [],
+                  });
+                }
+
+                interaction.editReply({
+                  content:
+                    "<:iconscorrect:1198037618361905345> | Colunas limpas com sucesso!",
+                  components: [],
+                });
+              }
+            );
+          } else if (i.customId === "cancel_clear") {
+            interaction.editReply({
+              content:
+                "<:icons_Wrong75:1198037616956821515> | Limpeza cancelada.",
+              components: [],
+            });
+          }
+
+          collector.stop();
+        });
+
+        collector.on("end", (collected) => {
+          if (collected.size === 0) {
+            interaction.followUp({
+              content:
+                "<:icons_Wrong75:1198037616956821515> Tempo expirado. Ação cancelada.",
+              ephemeral: true,
+            });
+          }
+        });
+      }
+    }
+  }
+});
