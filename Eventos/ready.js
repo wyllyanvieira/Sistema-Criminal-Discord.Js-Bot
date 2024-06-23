@@ -23,41 +23,55 @@ client.once("ready", async () => {
         let embed;
         let components;
 
-        if (tipo === "mensagem_ponto") {
+        if (tipo === "mensagem_ponto" && config.SISTEMAS.ponto) {
           embed = new Discord.EmbedBuilder()
-          .setTitle("🗳️ Controle de Bate-Ponto")
-          .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
-          .setDescription(
-            "Para os superiores saberem quem mais frequenta a cidade, foi coordenado um sistema de bate-ponto para melhor gerenciamento da organização. Lembrando que, em caso de esquecimento do ponto aberto, ele será fechado automaticamente por um superior. Utilize os botões abaixo para gerenciar essas ações."
-          )
-          .setColor(config.EMBED.color)
-          .addFields(
-            { name: '<:newmember:1197986072039264266> Abrir Ponto', value: '> Clique no botão "Abrir Ponto" para registrar o início do seu expediente.', inline: true },
-            { name: '<:member:1197986380781985903> Fechar Ponto', value: '> Clique no botão "Fechar Ponto" para registrar o término do seu expediente.', inline: true }
-          );
-        
-         components = [
-          new Discord.ActionRowBuilder().addComponents(
-            new Discord.ButtonBuilder()
-              .setCustomId("abrir_ponto")
-              .setEmoji('1197986072039264266')
-              .setLabel("Abrir Ponto")
-              .setStyle(Discord.ButtonStyle.Success),
-            new Discord.ButtonBuilder()
-              .setCustomId("fechar_ponto")
-              .setEmoji('1197986380781985903')
-              .setLabel("Fechar Ponto")
-              .setStyle(Discord.ButtonStyle.Danger)
-          ),
-        ];
-        } else if (tipo === "mensagem_metas") {
+            .setTitle("🗳️ Controle de Bate-Ponto")
+            .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
+            .setDescription(
+              "Para os superiores saberem quem mais frequenta a cidade, foi coordenado um sistema de bate-ponto para melhor gerenciamento da organização. Lembrando que, em caso de esquecimento do ponto aberto, ele será fechado automaticamente por um superior. Utilize os botões abaixo para gerenciar essas ações."
+            )
+            .setColor(config.EMBED.color)
+            .addFields(
+              {
+                name: "<:newmember:1197986072039264266> Abrir Ponto",
+                value:
+                  '> Clique no botão "Abrir Ponto" para registrar o início do seu expediente.',
+                inline: true,
+              },
+              {
+                name: "<:member:1197986380781985903> Fechar Ponto",
+                value:
+                  '> Clique no botão "Fechar Ponto" para registrar o término do seu expediente.',
+                inline: true,
+              }
+            );
+
+          if (config.EMBED.BANNER && config.EMBED.BANNER.imagem_ponto) {
+            embed.setImage(config.EMBED.BANNER.imagem_ponto);
+          }
+
+          components = [
+            new Discord.ActionRowBuilder().addComponents(
+              new Discord.ButtonBuilder()
+                .setCustomId("abrir_ponto")
+                .setEmoji("1197986072039264266")
+                .setLabel("Abrir Ponto")
+                .setStyle(Discord.ButtonStyle.Success),
+              new Discord.ButtonBuilder()
+                .setCustomId("fechar_ponto")
+                .setEmoji("1197986380781985903")
+                .setLabel("Fechar Ponto")
+                .setStyle(Discord.ButtonStyle.Danger)
+            ),
+          ];
+        } else if (tipo === "mensagem_metas" && config.SISTEMAS.metas) {
           embed = new Discord.EmbedBuilder()
             .setTitle("🎒 Controle de Metas/Farming")
             .setDescription(
               "Aqui será postado o controle de metas/Farming do usuário. Caso haja uma postagem fake acerca das metas, haverá punições. Lembrando que todos têm uma meta a ser atingida. Ao realizá-la, faça a postagem no Discord."
             )
             .setColor(config.EMBED.color)
-            .setThumbnail(client.user.displayAvatarURL({ dynamic: true })) // Substitua 'URL_DO_THUMBNAIL' pela URL da imagem desejada
+            .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
             .addFields(
               {
                 name: "<:ecomode:1197986068545425511> Enviar Meta",
@@ -71,28 +85,32 @@ client.once("ready", async () => {
               }
             );
 
+          if (config.EMBED.BANNER && config.EMBED.BANNER.imagem_metas) {
+            embed.setImage(config.EMBED.BANNER.imagem_metas);
+          }
+
           components = [
             new Discord.ActionRowBuilder().addComponents(
               new Discord.ButtonBuilder()
                 .setCustomId("send_meta")
-                .setEmoji('1197986068545425511')
+                .setEmoji("1197986068545425511")
                 .setLabel("Enviar Meta")
                 .setStyle(Discord.ButtonStyle.Success),
               new Discord.ButtonBuilder()
                 .setCustomId("check_metas")
-                .setEmoji('1197986066779607121')
+                .setEmoji("1197986066779607121")
                 .setLabel("Verificar Pendência Meta")
                 .setStyle(Discord.ButtonStyle.Secondary)
             ),
           ];
-        } else if (tipo === "mensagem_logbau") {
+        } else if (tipo === "mensagem_logbau" && config.SISTEMAS.bau) {
           embed = new Discord.EmbedBuilder()
             .setTitle("💰 Controle de Organização Monetária")
             .setDescription(
               "Este menu permite gerenciar o baú e o caixa da Organização. Selecione uma das opções abaixo:"
             )
             .setColor(config.EMBED.color)
-            .setThumbnail(client.user.displayAvatarURL({ dynamic: true })) // Substitua 'URL_DO_THUMBNAIL' pela URL da imagem desejada
+            .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
             .addFields(
               {
                 name: "<:rules:1197986061750632598> Adicionar Item",
@@ -113,6 +131,11 @@ client.once("ready", async () => {
                   "> Registre a remoção de dinheiro do caixa da Organização.",
               }
             );
+
+          if (config.EMBED.BANNER && config.EMBED.BANNER.imagem_bau) {
+            embed.setImage(config.EMBED.BANNER.imagem_bau);
+          }
+
           components = [
             new Discord.ActionRowBuilder().addComponents(
               new Discord.StringSelectMenuBuilder()
@@ -162,3 +185,4 @@ client.once("ready", async () => {
     }
   }
 });
+

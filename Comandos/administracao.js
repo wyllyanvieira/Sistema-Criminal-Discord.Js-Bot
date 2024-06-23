@@ -28,24 +28,24 @@ module.exports = {
         .setCustomId("admin_select")
         .setPlaceholder("⚙️ | Selecione uma opção")
         .addOptions([
-          {
+          ...(config.SISTEMAS.ponto? [{
             label: "Bate-Ponto",
             emoji: "🗳️",
             description: "Visualize e gerencie o bate-ponto",
             value: "ponto_menu",
-          },
-          {
+          }] : []),
+          ...(config.SISTEMAS.metas? [{
             label: "Gerenciamento de Farm",
             emoji: "🎒",
             description: "Gerencie o controle das farms da sua organização",
             value: "metas_menu",
-          },
-          {
+          }] : []),
+          ...(config.SISTEMAS.metas || config.SISTEMAS.ponto ? [{
             label: "Configuração",
             emoji: "⚙️",
             description: "Configure o modo para sua organização",
             value: "config_menu",
-          },
+          }] : [])
         ])
     );
 
@@ -112,12 +112,12 @@ client.on("interactionCreate", async (interaction) => {
                 description: "Limpar os rankings",
                 emoji: "🧹"
               },
-              {
+              ...(config.SISTEMAS.bau? [{
                 label: "Visualizar Baú",
                 value: "view_chest",
                 description: "Verfiicar Items do Baú",
                 emoji: "🎒"
-              },
+              }] : []),
               {
                 label: "Fechar Pontos Abertos",
                 value: "fechar_ponto_admin",

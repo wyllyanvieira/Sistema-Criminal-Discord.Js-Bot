@@ -53,3 +53,25 @@ fs.readdir("./Eventos", (err, file) => {
   });
 
 });
+
+process.on('uncaughtException', (error, origin) => {
+  console.log(`🚫 Erro Detectado:]\n\n${error.stack}`);
+});
+
+process.on('uncaughtExceptionMonitor', (error, origin) => {
+  console.log(`🚫 Erro Detectado:\n\n${error.stack}`);
+});
+
+const sistemas = {
+  ponto: "Sistema de Ponto",
+  bau: "Sistema de Baú",
+  metas: "Sistema de Metas",
+};
+
+for (const [sistema, nomeSistema] of Object.entries(sistemas)) {
+  if (config.SISTEMAS[sistema]) {
+    console.log(`✅ | ${nomeSistema} Ativo com Sucesso!`);
+  } else {
+    console.log(`⚠️ | ${nomeSistema} Desativado com Sucesso!`);
+  }
+}

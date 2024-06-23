@@ -54,8 +54,20 @@ O GTARP Roleplay Factions Bot é um bot de Discord desenvolvido em Node.js que o
         "token": "",
         "owner":"",
 
+            "SISTEMAS": {
+              "ponto": true,
+              "metas": false,
+              "bau": false
+            }, 
+  
             "EMBED": {
-                "color": "2f3136"
+              "color": "2f3136",
+              "BANNER":{
+                "ativo": true,
+                "imagem_ponto": "",
+                "imagem_meta": "",
+                "imagem_bau": ""
+              }
             },
 
             "CANAIS": {
@@ -90,15 +102,47 @@ O GTARP Roleplay Factions Bot é um bot de Discord desenvolvido em Node.js que o
 
 No arquivo `config.json`, configure as seguintes variáveis:
 
-- `token`: Token do seu bot no Discord.
-- `owner`: Prefixo para os comandos do bot.
-- `canal_ponto"`: Configura o canal destinado a Bate-Ponto
-- `canal_metas"`: Configura o canal destinado a Metas de Farm
-- `canal_bau"`: Configura o canal destinado a Envio de Baús
-- `Canal_log_ponto"`: Variavel de informação para envio de logs de bate-ponto
-- `Canal_log_metas"`: Variavel de informação para envio de logs de metas
-- `Canal_log_bau"`: Variavel de informação para envio de logs de baú
-- `metaglobal`: Array que Define Objetos para envio de farm
+Aqui está uma versão reformulada do seu README.md:
+
+
+
+## Configuração do Bot no Discord
+
+### Parâmetros Principais
+
+- **`token`**: Token do seu bot no Discord.
+- **`owner`**: Prefixo para os comandos do bot.
+
+### Sistemas
+
+- **`SISTEMAS`**:
+   - **`ponto`**: Ativa ou desativa o sistema de ponto (`true` ou `false`).
+   - **`metas`**: Ativa ou desativa o sistema de metas (`true` ou `false`).
+   - **`bau`**: Ativa ou desativa o sistema de baús (`true` ou `false`).
+
+### Configurações de Embed
+
+- **`EMBED`**:
+    - **`color`**: Define a cor padrão dos embeds.
+    - **`BANNER`**:
+        - **`ativo`**: Verifica se as thumbnails dos embeds estão ativas.
+        - **`imagem_ponto`**: URL da imagem do embed para o sistema de ponto.
+        - **`imagem_meta`**: URL da imagem do embed para o sistema de metas.
+        - **`imagem_bau`**: URL da imagem do embed para o sistema de baús.
+
+### Canais
+
+- **`canal_ponto`**: Configura o canal destinado a Bate-Ponto.
+- **`canal_metas`**: Configura o canal destinado a Metas de Farm.
+- **`canal_bau`**: Configura o canal destinado ao Envio de Baús.
+- **`Canal_log_ponto`**: Canal para envio de logs de Bate-Ponto.
+- **`Canal_log_metas`**: Canal para envio de logs de Metas.
+- **`Canal_log_bau`**: Canal para envio de logs de Baús.
+
+### Metas Globais
+
+- **`metaglobal`**: Array que define objetos para envio de farm.
+
 
 ## Comandos
 

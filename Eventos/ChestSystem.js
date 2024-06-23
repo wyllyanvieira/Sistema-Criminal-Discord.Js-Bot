@@ -171,170 +171,176 @@ const remMoneyModal = createModal("rem_money_modal", "Remover Dinheiro", [
 ]);
 
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isStringSelectMenu()) return;
+  if (config.SISTEMAS.bau) {
+    if (!interaction.isStringSelectMenu()) return;
 
-  if (interaction.customId === "orgmenu") {
-    if (interaction.values[0] === "rem_item") {
-      await interaction.showModal(remItemModal);
+    if (interaction.customId === "orgmenu") {
+      if (interaction.values[0] === "rem_item") {
+        await interaction.showModal(remItemModal);
+      }
+
+      if (interaction.values[0] === "add_item") {
+        await interaction.showModal(addItemModal);
+      }
+
+      if (interaction.values[0] === "add_money") {
+        await interaction.showModal(addMoneyModal);
+      }
+
+      if (interaction.values[0] === "rem_money") {
+        await interaction.showModal(remMoneyModal);
+      }
     }
 
-    if (interaction.values[0] === "add_item") {
-      await interaction.showModal(addItemModal);
+    if (
+      interaction.customId === "admin_select" &&
+      interaction.values[0] === "view_chest"
+    ) {
+      const guildId = interaction.guildId;
+      const page = 0; // Começa na primeira página
+      const embed = createItemsEmbed(guildId, page);
+      const totalPages = calculateTotalPages(guildId);
+
+      const buttons = createPaginationButtons(page, totalPages);
+
+      await interaction.reply({
+        embeds: [embed],
+        components: [buttons],
+        ephemeral: true,
+      });
     }
-
-    if (interaction.values[0] === "add_money") {
-      await interaction.showModal(addMoneyModal);
-    }
-
-    if (interaction.values[0] === "rem_money") {
-      await interaction.showModal(remMoneyModal);
-    }
-  }
-
-  if (
-    interaction.customId === "admin_select" &&
-    interaction.values[0] === "view_chest"
-  ) {
-    const guildId = interaction.guildId;
-    const page = 0; // Começa na primeira página
-    const embed = createItemsEmbed(guildId, page);
-    const totalPages = calculateTotalPages(guildId);
-
-    const buttons = createPaginationButtons(page, totalPages);
-
-    await interaction.reply({
-      embeds: [embed],
-      components: [buttons],
-      ephemeral: true,
-    });
-  }
-});
-
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isButton()) return;
-  if (interaction.customId.startsWith("prev" || "next")) {
-    const guildId = interaction.guildId;
-    const [action, currentPage] = interaction.customId.split("_");
-    if (action === "prev") newPage -= 1;
-    if (action === "next") newPage += 1;
-
-    const totalPages = calculateTotalPages(guildId);
-    const itemsMessage = createItemsEmbed(guildId, newPage);
-
-    const buttons = createPaginationButtons(newPage, totalPages);
-
-    await interaction.update({
-      content: itemsMessage,
-      components: [buttons],
-    });
   }
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (interaction.isModalSubmit()) {
-    const guild_id = interaction.guild.id;
-    const customId = interaction.customId;
+  if (config.SISTEMAS.bau) {
+    if (!interaction.isButton()) return;
+    if (interaction.customId.startsWith("prev" || "next")) {
+      const guildId = interaction.guildId;
+      const [action, currentPage] = interaction.customId.split("_");
+      if (action === "prev") newPage -= 1;
+      if (action === "next") newPage += 1;
 
-    let data = readData();
+      const totalPages = calculateTotalPages(guildId);
+      const itemsMessage = createItemsEmbed(guildId, newPage);
 
-    if (!data[guild_id]) {
-      data[guild_id] = { money: 0, items: {} };
+      const buttons = createPaginationButtons(newPage, totalPages);
+
+      await interaction.update({
+        content: itemsMessage,
+        components: [buttons],
+      });
     }
+  }
+});
 
-    if (customId === "rem_item_modal" || customId === "add_item_modal") {
-      const item = interaction.fields.getTextInputValue("item");
-      const quantity = parseInt(
-        interaction.fields.getTextInputValue("quantity")
-      );
-      const proof = interaction.fields.getTextInputValue("proof");
+client.on("interactionCreate", async (interaction) => {
+  if (config.SISTEMAS.bau) {
+    if (interaction.isModalSubmit()) {
+      const guild_id = interaction.guild.id;
+      const customId = interaction.customId;
 
-      if (customId === "rem_item_modal") {
-        if (
-          data[guild_id].items[item] &&
-          data[guild_id].items[item] >= quantity
-        ) {
-          data[guild_id].items[item] -= quantity;
-          if (data[guild_id].items[item] === 0) {
-            delete data[guild_id].items[item];
+      let data = readData();
+
+      if (!data[guild_id]) {
+        data[guild_id] = { money: 0, items: {} };
+      }
+
+      if (customId === "rem_item_modal" || customId === "add_item_modal") {
+        const item = interaction.fields.getTextInputValue("item");
+        const quantity = parseInt(
+          interaction.fields.getTextInputValue("quantity")
+        );
+        const proof = interaction.fields.getTextInputValue("proof");
+
+        if (customId === "rem_item_modal") {
+          if (
+            data[guild_id].items[item] &&
+            data[guild_id].items[item] >= quantity
+          ) {
+            data[guild_id].items[item] -= quantity;
+            if (data[guild_id].items[item] === 0) {
+              delete data[guild_id].items[item];
+            }
+            writeData(data);
+            interaction.reply({
+              content:
+                " <:delete:1197986063554187284>| Item removido com sucesso!",
+              ephemeral: true,
+            });
+            FunctionsGlobal.log(
+              "chest",
+              `> O Usuario <@${interaction.user.id}> removeu **${quantity}x ${item}** do Baú da organização
+          > Provas Anexadas: ${proof}`
+            );
+          } else {
+            interaction.reply({
+              content:
+                "<:icons_Wrong75:1198037616956821515> | A Organização não possue essa quantidade em seu baú!",
+              ephemeral: true,
+            });
           }
+        }
+
+        if (customId === "add_item_modal") {
+          data[guild_id].items[item] =
+            (data[guild_id].items[item] || 0) + quantity;
           writeData(data);
           interaction.reply({
             content:
-              " <:delete:1197986063554187284>| Item removido com sucesso!",
+              "<:iconscorrect:1198037618361905345> | Item adicionado com sucesso!",
             ephemeral: true,
           });
           FunctionsGlobal.log(
             "chest",
-            `> O Usuario <@${interaction.user.id}> removeu **${quantity}x ${item}** do Baú da organização
+            `> O Usuario <@${interaction.user.id}> colocou **${quantity}x ${item}** do Baú da organização
           > Provas Anexadas: ${proof}`
           );
-        } else {
-          interaction.reply({
-            content:
-              "<:icons_Wrong75:1198037616956821515> | A Organização não possue essa quantidade em seu baú!",
-            ephemeral: true,
-          });
         }
       }
 
-      if (customId === "add_item_modal") {
-        data[guild_id].items[item] =
-          (data[guild_id].items[item] || 0) + quantity;
-        writeData(data);
-        interaction.reply({
-          content:
-            "<:iconscorrect:1198037618361905345> | Item adicionado com sucesso!",
-          ephemeral: true,
-        });
-        FunctionsGlobal.log(
-          "chest",
-          `> O Usuario <@${interaction.user.id}> colocou **${quantity}x ${item}** do Baú da organização
-          > Provas Anexadas: ${proof}`
+      if (customId === "add_money_modal" || customId === "rem_money_modal") {
+        const quantity = parseInt(
+          interaction.fields.getTextInputValue("quantity")
         );
-      }
-    }
+        const proof = interaction.fields.getTextInputValue("proof");
 
-    if (customId === "add_money_modal" || customId === "rem_money_modal") {
-      const quantity = parseInt(
-        interaction.fields.getTextInputValue("quantity")
-      );
-      const proof = interaction.fields.getTextInputValue("proof");
-
-      if (customId === "add_money_modal") {
-        data[guild_id].money += quantity;
-        writeData(data);
-        interaction.reply({
-          content:
-            "<:iconscorrect:1198037618361905345> | Dinheiro adicionado com sucesso!",
-          ephemeral: true,
-        });
-        FunctionsGlobal.log(
-          "chest",
-          `> O Usuario <@${interaction.user.id}> adicionou **${quantity}x de Dinheiro** aos cofres da organização
-          > Provas Anexadas: ${proof}`
-        );
-      }
-
-      if (customId === "rem_money_modal") {
-        if (data[guild_id].money >= quantity) {
-          data[guild_id].money -= quantity;
+        if (customId === "add_money_modal") {
+          data[guild_id].money += quantity;
           writeData(data);
           interaction.reply({
             content:
-              "<:delete:1197986063554187284> | Dinheiro removido com sucesso!",
+              "<:iconscorrect:1198037618361905345> | Dinheiro adicionado com sucesso!",
             ephemeral: true,
           });
           FunctionsGlobal.log(
             "chest",
-            `O Usuario <@${interaction.user.id}> removeu **${quantity}x de Dinheiro** aos cofres da organização
-            > Provas Anexadas: ${proof}`
+            `> O Usuario <@${interaction.user.id}> adicionou **${quantity}x de Dinheiro** aos cofres da organização
+          > Provas Anexadas: ${proof}`
           );
-        } else {
-          interaction.reply({
-            content:
-              "<:icons_Wrong75:1198037616956821515> | A Organização não possue esse valor em seu cofre!",
-            ephemeral: true,
-          });
+        }
+
+        if (customId === "rem_money_modal") {
+          if (data[guild_id].money >= quantity) {
+            data[guild_id].money -= quantity;
+            writeData(data);
+            interaction.reply({
+              content:
+                "<:delete:1197986063554187284> | Dinheiro removido com sucesso!",
+              ephemeral: true,
+            });
+            FunctionsGlobal.log(
+              "chest",
+              `O Usuario <@${interaction.user.id}> removeu **${quantity}x de Dinheiro** aos cofres da organização
+            > Provas Anexadas: ${proof}`
+            );
+          } else {
+            interaction.reply({
+              content:
+                "<:icons_Wrong75:1198037616956821515> | A Organização não possue esse valor em seu cofre!",
+              ephemeral: true,
+            });
+          }
         }
       }
     }

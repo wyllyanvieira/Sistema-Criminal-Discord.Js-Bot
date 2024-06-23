@@ -1,30 +1,41 @@
 {
-  "token": "MTA2NDY4MzU5NTEzNTk5MTg5Mg.GsiMI4.CbYMXv8elWWjdqpy57-BNkWvy3faWzfg4KooiM",
+  "token": "MTE5MzM1Njc0NzcxMzI5MDI3MA.GLFF7g.Ybvw-vbR2QuW16S4FZX6Mw-F43tBHXgxM0vdqM",
   "owner":"496079437511524352",
 
-
+  "SISTEMAS": {
+    "ponto": true,
+    "metas": false,
+    "bau": false
+  }, 
+  
   "EMBED": {
-    "color": "2f3136"
+    "color": "2f3136",
+    "BANNER":{
+      "ativo": true,
+      "imagem_ponto": "https://media.discordapp.net/attachments/1254123257297109075/1254138242354122813/BATE-PONTO.png?ex=667866c1&is=66771541&hm=07a36bc73683ce84f2742f6538945632d6d3a5c8edb7372da944d776d31640b4&=&format=webp&quality=lossless&width=820&height=300",
+      "imagem_meta": "https://media.discordapp.net/attachments/1254123257297109075/1254138255679426570/CONTROLE_FARM.png?ex=667866c4&is=66771544&hm=bfe43afa8c69864c5cdcdae43ff689a01103c2a8bba80c2c652baf5541804c1f&=&format=webp&quality=lossless&width=820&height=300",
+      "imagem_bau": "https://media.discordapp.net/attachments/1254123257297109075/1254138265053696180/CONTROLE_FINANCEIRO.png?ex=667866c7&is=66771547&hm=31524440a8247bc1a939ed934ccc810adff1ce6e3023b161101c008e0c32839c&=&format=webp&quality=lossless&width=820&height=300"
+    }
   },
   
   "CANAIS": {
-    "canal_ponto":"1250416051251056740",
-    "canal_metas":"1250416068409819146",
-    "canal_bau":"1250416082582245416"
+    "canal_ponto":"1254205091003760711",
+    "canal_metas":"1253453177425231972",
+    "canal_bau":"1254205091003760711"
   },
   
   "LOGS" : {
-    "Canal_log_ponto": "1250211459162443776",
-    "Canal_log_metas": "1250211459162443776",
-    "Canal_log_bau": "1250211459162443776"
+    "Canal_log_ponto": "1254205319463047310",
+    "Canal_log_metas": "1254205343349866597",
+    "Canal_log_bau": "1254143190299185312"
 
   },
   
   "METAS_FARM": {
     "metaglobal": [
-      {"quantidade": 3, "item": "m4"},
-      {"quantidade": 4, "item": "m4-muni"},
-      {"quantidade": 4, "item": "pistola"}
+      {"quantidade": 30, "item": "M4"},
+      {"quantidade": 40, "item": "MunicaoFuzil"},
+      {"quantidade": 40, "item": "Pistola"}
     ]
   }
   

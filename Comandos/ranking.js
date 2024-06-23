@@ -19,22 +19,22 @@ module.exports = {
   description: "[⚙️ Utilidade] Veja o Ranking dos respectivos setores.",
   type: Discord.ApplicationCommandType.ChatInput,
   options: [
-    {
+    ...(config.SISTEMAS.metas ? [{
       name: "farm",
       description: "Veja o ranking das pessoas com menos farm.",
       type: Discord.ApplicationCommandOptionType.Subcommand,
-    },
-    {
+    }] : []),
+    ...(config.SISTEMAS.ponto ? [{
       name: "ponto",
       description: "Veja o ranking das pessoas com mais tempo de ponto.",
       type: Discord.ApplicationCommandOptionType.Subcommand,
-    },
-    {
+    }] : []),
+    ...(config.SISTEMAS.metas && config.SISTEMAS.ponto ? [{
       name: "misto",
-      description:
+      description:  
         "Veja o ranking das pessoas com mais desempenho dentro da organização.",
       type: Discord.ApplicationCommandOptionType.Subcommand,
-    },
+    }] : []),
   ],
 
   run: async (client, interaction) => {
