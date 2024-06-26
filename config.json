@@ -1,6 +1,6 @@
 {
-  "token": "MTE5MzM1Njc0NzcxMzI5MDI3MA.GLFF7g.Ybvw-vbR2QuW16S4FZX6Mw-F43tBHXgxM0vdqM",
-  "owner":"496079437511524352",
+  "token": "",
+  "owner":"",
 
   "SISTEMAS": {
     "ponto": true,
@@ -12,22 +12,22 @@
     "color": "2f3136",
     "BANNER":{
       "ativo": true,
-      "imagem_ponto": "https://media.discordapp.net/attachments/1254123257297109075/1254138242354122813/BATE-PONTO.png?ex=667866c1&is=66771541&hm=07a36bc73683ce84f2742f6538945632d6d3a5c8edb7372da944d776d31640b4&=&format=webp&quality=lossless&width=820&height=300",
-      "imagem_meta": "https://media.discordapp.net/attachments/1254123257297109075/1254138255679426570/CONTROLE_FARM.png?ex=667866c4&is=66771544&hm=bfe43afa8c69864c5cdcdae43ff689a01103c2a8bba80c2c652baf5541804c1f&=&format=webp&quality=lossless&width=820&height=300",
-      "imagem_bau": "https://media.discordapp.net/attachments/1254123257297109075/1254138265053696180/CONTROLE_FINANCEIRO.png?ex=667866c7&is=66771547&hm=31524440a8247bc1a939ed934ccc810adff1ce6e3023b161101c008e0c32839c&=&format=webp&quality=lossless&width=820&height=300"
+      "imagem_ponto": "",
+      "imagem_meta": "",
+      "imagem_bau": ""
     }
   },
   
   "CANAIS": {
-    "canal_ponto":"1254205091003760711",
-    "canal_metas":"1253453177425231972",
-    "canal_bau":"1254205091003760711"
+    "canal_ponto":"",
+    "canal_metas":"",
+    "canal_bau":""
   },
   
   "LOGS" : {
-    "Canal_log_ponto": "1254205319463047310",
-    "Canal_log_metas": "1254205343349866597",
-    "Canal_log_bau": "1254143190299185312"
+    "Canal_log_ponto": "",
+    "Canal_log_metas": "",
+    "Canal_log_bau": ""
 
   },
   
@@ -39,8 +39,5 @@
     ]
   }
   
-  
 
 }
-
-
